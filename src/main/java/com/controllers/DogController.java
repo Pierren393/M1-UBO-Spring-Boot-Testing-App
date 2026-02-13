@@ -10,7 +10,7 @@ import java.util.List;
 @RestController
 @RequestMapping("/dogs")
 public class DogController {
-	
+
 	private final DogServiceImpl dogService;
 
 	public DogController(DogServiceImpl dogService) {
@@ -18,7 +18,10 @@ public class DogController {
 	}
 
 	/**
-	 * <p>Get all dogs in the system</p>
+	 * <p>
+	 * Get all dogs in the system
+	 * </p>
+	 * 
 	 * @return List<DogDto>
 	 */
 	@GetMapping
@@ -30,7 +33,7 @@ public class DogController {
 	 * Method to get the dog based on the ID
 	 */
 	@GetMapping("/{id}")
-	public DogDto getDog(@PathVariable Long id){
+	public DogDto getDog(@PathVariable Long id) {
 		return dogService.getDogById(id);
 	}
 
@@ -38,7 +41,7 @@ public class DogController {
 	 * Create a new Dog in the system
 	 */
 	@PostMapping
-	public DogDto saveDog(final @RequestBody DogDto dogDto){
+	public DogDto saveDog(final @RequestBody DogDto dogDto) {
 		return dogService.saveDog(dogDto);
 	}
 
@@ -46,8 +49,8 @@ public class DogController {
 	 * Delete a dog by it's id
 	 */
 	@DeleteMapping("/{id}")
-	public Boolean deleteDog(@PathVariable Long id){
+	public Boolean deleteDog(@PathVariable Long id) {
 		return dogService.deleteDog(id);
 	}
-	
+
 }

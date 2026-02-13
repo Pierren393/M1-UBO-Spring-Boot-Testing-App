@@ -1,52 +1,53 @@
 package com.controllers;
 
-import com.dtos.DogDto;
-import com.services.impl.DogServiceImpl;
+import com.dtos.AuthentificationDto;
 import org.springframework.web.bind.annotation.*;
+
+import com.services.impl.AuthentificationServiceImpl;
 
 import java.util.List;
 
 @RestController
-@RequestMapping("/dogs")
+@RequestMapping("/authentifications")
 public class AuthentificationController {
 	
-	private final DogServiceImpl dogService;
+	private final AuthentificationServiceImpl authentificationService;
 
-	public AuthentificationController(DogServiceImpl dogService) {
-		this.dogService = dogService;
+	public AuthentificationController(AuthentificationServiceImpl authentificationService) {
+		this.authentificationService = authentificationService;
 	}
 
 	/**
-	 * <p>Get all dogs in the system</p>
-	 * @return List<DogDto>
+	 * <p>Get all authentifications in the system</p>
+	 * @return List<AuthentificationDto>
 	 */
 	@GetMapping
-	public List<DogDto> getDogs() {
-		return dogService.getAllDogs();
+	public List<AuthentificationDto> getAuthentifications() {
+		return authentificationService.getAllAuthentifications();
 	}
 
 	/**
-	 * Method to get the dog based on the ID
+	 * Method to get the authentification based on the ID
 	 */
 	@GetMapping("/{id}")
-	public DogDto getDog(@PathVariable Long id){
-		return dogService.getDogById(id);
+	public AuthentificationDto getAuthentification(@PathVariable Long id){
+		return authentificationService.getAuthentificationById(id);
 	}
 
 	/**
-	 * Create a new Dog in the system
+	 * Create a new Authentification in the system
 	 */
 	@PostMapping
-	public DogDto saveDog(final @RequestBody DogDto dogDto){
-		return dogService.saveDog(dogDto);
+	public AuthentificationDto saveAuthentification(final @RequestBody AuthentificationDto authentificationDto){
+		return authentificationService.saveAuthentification(authentificationDto);
 	}
 
 	/**
-	 * Delete a dog by it's id
+	 * Delete a authentification by it's id
 	 */
 	@DeleteMapping("/{id}")
-	public Boolean deleteDog(@PathVariable Long id){
-		return dogService.deleteDog(id);
+	public Boolean deleteAuthentification(@PathVariable Long id){
+		return authentificationService.deleteAuthentification(id);
 	}
 	
 }
