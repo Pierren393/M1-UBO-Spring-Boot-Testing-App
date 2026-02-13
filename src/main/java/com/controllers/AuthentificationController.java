@@ -1,0 +1,52 @@
+package com.controllers;
+
+import com.dtos.DogDto;
+import com.services.impl.DogServiceImpl;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
+
+@RestController
+@RequestMapping("/dogs")
+public class AuthentificationController {
+	
+	private final DogServiceImpl dogService;
+
+	public AuthentificationController(DogServiceImpl dogService) {
+		this.dogService = dogService;
+	}
+
+	/**
+	 * <p>Get all dogs in the system</p>
+	 * @return List<DogDto>
+	 */
+	@GetMapping
+	public List<DogDto> getDogs() {
+		return dogService.getAllDogs();
+	}
+
+	/**
+	 * Method to get the dog based on the ID
+	 */
+	@GetMapping("/{id}")
+	public DogDto getDog(@PathVariable Long id){
+		return dogService.getDogById(id);
+	}
+
+	/**
+	 * Create a new Dog in the system
+	 */
+	@PostMapping
+	public DogDto saveDog(final @RequestBody DogDto dogDto){
+		return dogService.saveDog(dogDto);
+	}
+
+	/**
+	 * Delete a dog by it's id
+	 */
+	@DeleteMapping("/{id}")
+	public Boolean deleteDog(@PathVariable Long id){
+		return dogService.deleteDog(id);
+	}
+	
+}
