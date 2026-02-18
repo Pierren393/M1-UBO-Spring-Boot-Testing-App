@@ -14,9 +14,7 @@ public class Authentification {
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	private Long Id;
-	private String name;
-	private String race;
-	private LocalDate birthDate;
+	private String username;
+	private String password;
 
 }

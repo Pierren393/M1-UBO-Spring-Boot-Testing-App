@@ -11,6 +11,7 @@ import java.util.List;
 public interface DogService {
     /**
      * Sauvegarde un chien dans le système
+     *
      * @param dogDto les données du chien à sauvegarder
      * @return le chien sauvegardé avec son ID généré
      */
@@ -18,6 +19,7 @@ public interface DogService {
 
     /**
      * Récupère un chien par son identifiant
+     *
      * @param dogId l'identifiant du chien recherché
      * @return le chien trouvé
      * @throws jakarta.persistence.EntityNotFoundException si le chien n'existe pas
@@ -26,6 +28,7 @@ public interface DogService {
 
     /**
      * Supprime un chien du système
+     *
      * @param dogId l'identifiant du chien à supprimer
      * @return true si la suppression a réussi
      */
@@ -33,6 +36,7 @@ public interface DogService {
 
     /**
      * Récupère tous les chiens du système
+     *
      * @return la liste des chiens
      */
     List<DogDto> getAllDogs();

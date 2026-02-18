@@ -11,46 +11,46 @@ import java.util.List;
 @RequestMapping("/dogs")
 public class DogController {
 
-	private final DogServiceImpl dogService;
+    private final DogServiceImpl dogService;
 
-	public DogController(DogServiceImpl dogService) {
-		this.dogService = dogService;
-	}
+    public DogController(DogServiceImpl dogService) {
+        this.dogService = dogService;
+    }
 
-	/**
-	 * <p>
-	 * Get all dogs in the system
-	 * </p>
-	 * 
-	 * @return List<DogDto>
-	 */
-	@GetMapping
-	public List<DogDto> getDogs() {
-		return dogService.getAllDogs();
-	}
+    /**
+     * <p>
+     * Get all dogs in the system
+     * </p>
+     *
+     * @return List<DogDto>
+     */
+    @GetMapping
+    public List<DogDto> getDogs() {
+        return dogService.getAllDogs();
+    }
 
-	/**
-	 * Method to get the dog based on the ID
-	 */
-	@GetMapping("/{id}")
-	public DogDto getDog(@PathVariable Long id) {
-		return dogService.getDogById(id);
-	}
+    /**
+     * Method to get the dog based on the ID
+     */
+    @GetMapping("/{id}")
+    public DogDto getDog(@PathVariable Long id) {
+        return dogService.getDogById(id);
+    }
 
-	/**
-	 * Create a new Dog in the system
-	 */
-	@PostMapping
-	public DogDto saveDog(final @RequestBody DogDto dogDto) {
-		return dogService.saveDog(dogDto);
-	}
+    /**
+     * Create a new Dog in the system
+     */
+    @PostMapping
+    public DogDto saveDog(final @RequestBody DogDto dogDto) {
+        return dogService.saveDog(dogDto);
+    }
 
-	/**
-	 * Delete a dog by it's id
-	 */
-	@DeleteMapping("/{id}")
-	public Boolean deleteDog(@PathVariable Long id) {
-		return dogService.deleteDog(id);
-	}
+    /**
+     * Delete a dog by it's id
+     */
+    @DeleteMapping("/{id}")
+    public Boolean deleteDog(@PathVariable Long id) {
+        return dogService.deleteDog(id);
+    }
 
 }
