@@ -1,0 +1,58 @@
+services:
+  # authentication api (servlet simple)
+  authentication-api:
+    image: gitlab-depinfo.univ-brest.fr:5050/e12345678/apis/authentication-api:latest
+    # la version docker de l'image se connecte a la base `authdb:3306/authapidb` avec l'utilisateur `root` et le mot de passe `1234secure`
+    ports:
+      - "10001:8080" # remplacer 10001 par un port affecte a votre groupe
+    depends_on:
+      - authdb
+  authdb:
+    # initialisation de la base : `mysql -h 127.0.0.1 -u root -p authapidb < init.sql`
+    image: mariadb:11.6.2-ubi9
+    restart: unless-stopped
+    ports:
+      - "3306:3306"
+    volumes:
+      - "/etc/localtime:/etc/localtime:ro"
+      - "/etc/timezone:/etc/timezone:ro"
+      # chmod 777
+      - "./data_auth:/var/lib/mysql"
+    environment:
+      MARIADB_ROOTdocker-compose_PASSWORD: 1234secure
+      MARIADB_DATABASE: authapidb
+
+  # student-api (appli springboot)
+  studentapi:
+    image: gitlab-depinfo.univ-brest.fr:5050/e12345678/apis:latest
+    ports:
+      - "10002:8080" # remplacer 10002 par un port affecte a votre groupe
+    environment:
+      spring.datasource.url: jdbc:mysql://studentdb:3306/students
+      spring.datasource.username: root
+      spring.datasource.password: 1234secure
+      spring.jpa.database: MYSQL
+      spring.jpa.hibernate.ddl-auto: update
+    depends_on:
+      - studentdb
+  studentdb:
+    image: mariadb:11.6.2-ubi9
+    restart: unless-stopped
+    ports:
+      - "3306:3306"
+    volumes:
+      - "/etc/localtime:/etc/localtime:ro"
+      - "/etc/timezone:/etc/timezone:ro"
+      # chmod 77712345678
+      - "./data_stud:/var/lib/mysql"
+    environment:
+      MARIADB_ROOT_PASSWORD: 1234secure
+      MARIADB_DATABASE: students
+
+  # message api (servlet simple)
+  services:
+  message-api:
+    image: gitlab-depinfo.univ-brest.fr:5050/e12345678/apis/message-api:latest
+    # l'image se connecte a obiwan en mongo
+    ports:
+      - "10003:8080" # remplacer 10003 par un port affecte a votre groupe
