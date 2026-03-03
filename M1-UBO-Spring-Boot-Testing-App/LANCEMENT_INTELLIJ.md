@@ -18,15 +18,12 @@
 Vérifier les identifiants dans `src/main/resources/application.properties` :
 
 ```properties
-spring.datasource.url=jdbc:mariadb://localhost:3306/test
-spring.datasource.username=root
-spring.datasource.password=monMotDePasseSuperSecret
+spring.datasource.url=jdbc:mariadb://localhost:3306/e22002182_db1
+spring.datasource.username=e22002182sql
+spring.datasource.password=20ok2UVf
 ```
 
-> ⚠️ Créer la base `test` dans MariaDB si elle n'existe pas :
-> ```sql
-> CREATE DATABASE IF NOT EXISTS test;
-> ```
+> ⚠️ La base `e22002182_db1` doit exister sur le serveur MariaDB.
 
 ### 3. Lancer l'application
 
