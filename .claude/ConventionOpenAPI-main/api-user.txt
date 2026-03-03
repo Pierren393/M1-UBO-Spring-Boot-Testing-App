@@ -1,0 +1,229 @@
+openapi: 3.1.0
+info:
+  title: user-api
+  description: API pour la gestion des utilisateurs du système VOD.
+  version: 1.0.0
+
+servers:
+  - url: 
+    description: Serveur de production
+
+paths:
+  /user:
+    get:
+      summary: Liste tous les utilisateurs
+      description: Renvoie une liste de tous les utilisateurs (admin).
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Une liste d'utilisateurs
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/User'
+        '401':
+          description: Non authentifié
+        '403':
+          description: Accès interdit (admin uniquement)
+    
+    post:
+      summary: Créer un nouveau compte utilisateur
+      description: Permet à un nouvel utilisateur de s'inscrire sur la plateforme VOD.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserCreate'
+      responses:
+        '201':
+          description: Utilisateur créé avec succès
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+        '400':
+          description: Requête invalide (données manquantes ou invalides)
+        '409':
+          description: Conflit - Le pseudo existe déjà
+
+  /user/{pseudo}:
+    get:
+      summary: Récupérer un utilisateur par son pseudo
+      description: Renvoie les informations d'un utilisateur spécifique.
+      parameters:
+        - name: pseudo
+          in: path
+          required: true
+          description: Le pseudo de l'utilisateur à récupérer.
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Informations de l'utilisateur
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+        '404':
+          description: Utilisateur non trouvé
+    
+    put:
+      summary: Met à jour un utilisateur
+      description: Met à jour les informations d'un utilisateur spécifique.
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: pseudo
+          in: path
+          required: true
+          description: Le pseudo de l'utilisateur à mettre à jour.
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserUpdate'
+      responses:
+        '200':
+          description: Utilisateur mis à jour avec succès
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+        '400':
+          description: Requête invalide
+        '401':
+          description: Non authentifié
+        '403':
+          description: Accès interdit (vous ne pouvez modifier que votre propre compte)
+        '404':
+          description: Utilisateur non trouvé
+    
+    delete:
+      summary: Supprime un utilisateur
+      description: Supprime un utilisateur spécifique du système.
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: pseudo
+          in: path
+          required: true
+          description: Le pseudo de l'utilisateur à supprimer.
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Utilisateur supprimé avec succès
+        '401':
+          description: Non authentifié
+        '403':
+          description: Accès interdit (admin uniquement)
+        '404':
+          description: Utilisateur non trouvé
+components:
+  schemas:
+    UserCreate:
+      type: object
+      required:
+        - pseudo
+        - nom
+        - prenom
+        - age
+        - adresse
+        - motDePasse
+      properties:
+        pseudo:
+          type: string
+          description: Pseudo unique de l'utilisateur (identifiant de connexion).
+        nom:
+          type: string
+          description: Nom de famille de l'utilisateur.
+        prenom:
+          type: string
+          description: Prénom de l'utilisateur.
+        age:
+          type: integer
+          minimum: 1
+          description: Âge de l'utilisateur.
+        adresse:
+          type: string
+          description: Adresse de l'utilisateur.
+        motDePasse:
+          type: string
+          format: password
+          description: Mot de passe de l'utilisateur.
+
+    UserUpdate:
+      type: object
+      properties:
+        nom:
+          type: string
+          description: Nom de famille de l'utilisateur.
+        prenom:
+          type: string
+          description: Prénom de l'utilisateur.
+        age:
+          type: integer
+          minimum: 1
+          description: Âge de l'utilisateur.
+        adresse:
+          type: string
+          description: Adresse de l'utilisateur.
+        motDePasse:
+          type: string
+          format: password
+          description: Nouveau mot de passe de l'utilisateur.
+
+    User:
+      type: object
+      properties:
+        pseudo:
+          type: string
+          description: Pseudo unique de l'utilisateur.
+        nom:
+          type: string
+          description: Nom de famille de l'utilisateur.
+        prenom:
+          type: string
+          description: Prénom de l'utilisateur.
+        age:
+          type: integer
+          description: Âge de l'utilisateur.
+        adresse:
+          type: string
+          description: Adresse de l'utilisateur.
+
+    UserLogin:
+      type: object
+      required:
+        - pseudo
+        - motDePasse
+      properties:
+        pseudo:
+          type: string
+          description: Pseudo de l'utilisateur.
+        motDePasse:
+          type: string
+          format: password
+          description: Mot de passe de l'utilisateur.
+
+    AuthToken:
+      type: object
+      properties:
+        token:
+          type: string
+          description: Token d'authentification JWT ou session.
+        user:
+          $ref: '#/components/schemas/User'
+
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT

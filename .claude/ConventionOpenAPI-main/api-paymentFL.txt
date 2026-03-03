@@ -1,0 +1,96 @@
+openapi: 3.0.3
+info:
+  title: Payment API
+  version: 1.0.0
+  description: >
+    L'API Payment permet de gérer les paiements pour notre application.
+
+servers:
+  - url: http://localhost:8080/api/v1
+    description: Serveur principal de production
+
+paths:
+  /payments:
+    get:
+      summary: Liste tous les paiements
+      responses:
+        '200':
+          description: Liste des paiements
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Payment'
+
+    post:
+      summary: Crée un nouveau paiement
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Payment'
+            example:  # <- exemple pour Swagger Editor
+              id: "pmt_001"
+              amount: 49.99
+              currency: "EUR"
+              status: "pending"
+              userId: "user_123"
+              createdAt: "2026-01-27T10:00:00Z"
+      responses:
+        '201':
+          description: Paiement créé avec succès
+        '400':
+          description: Requête invalide
+
+  /payments/{id}:
+    get:
+      summary: Récupère un paiement par son ID
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: L'ID du paiement à récupérer
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Détails du paiement
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Payment'
+        '404':
+          description: Paiement non trouvé
+
+components:
+  schemas:
+    Payment:
+      type: object
+      required:
+        - id
+        - amount
+        - currency
+        - status
+      properties:
+        id:
+          type: string
+          description: Identifiant unique du paiement
+        amount:
+          type: number
+          format: float
+          description: Montant du paiement
+        currency:
+          type: string
+          description: Devise du paiement
+        status:
+          type: string
+          description: Statut du paiement 
+        userId:
+          type: string
+          description: ID de l’utilisateur qui a effectué le paiement
+        createdAt:
+          type: string
+          format: date-time
+          description: Date et heure de création du paiement

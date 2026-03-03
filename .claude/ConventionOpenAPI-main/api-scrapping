@@ -1,0 +1,171 @@
+openapi: 3.1.0
+info:
+  title: scrapping-api
+  description: >
+    API de scrapping permettant de récupérer des données sur des films et des artistes
+    depuis des bases extérieures afin de peupler la base de données locale.
+  version: 1.0.0
+paths:
+  '/movies/{name}':
+    get:
+      summary: Rechercher et importer un film depuis une API externe
+      parameters:
+        - name: name
+          in: path
+          required: true
+          description: Le titre du film à rechercher
+          schema:
+            type: string
+            example: "Inception"
+      responses:
+        '201':
+          description: Film importé et enregistré avec succès
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Movie'
+        '404':
+          description: Film non trouvé sur l'API externe
+        '409':
+          description: Le film existe déjà en base de données
+        '502':
+          description: Erreur lors de la communication avec l'API externe
+  '/artists/{name}':
+    get:
+      summary: Rechercher et importer un artiste depuis une API externe
+      parameters:
+        - name: name
+          in: path
+          required: true
+          description: Le nom de l'artiste à rechercher
+          schema:
+            type: string
+            example: "Leonardo DiCaprio"
+      responses:
+        '201':
+          description: Artiste importé et enregistré avec succès
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Artist'
+        '404':
+          description: Artiste non trouvé sur l'API externe
+        '409':
+          description: L'artiste existe déjà en base de données
+        '502':
+          description: Erreur lors de la communication avec l'API externe
+  '/movies/batch/{nbMovies}':
+    get:
+      summary: Importer un nombre aléatoire de films
+      parameters:
+        - name: nbMovies
+          in: path
+          required: true
+          description: Nombre de films à générer aléatoirement
+          schema:
+            type: integer
+            example: 20
+      responses:
+        '201':
+          description: Films importés avec succès
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BatchMovieResponse'
+        '502':
+          description: Erreur lors de la communication avec l'API externe
+  '/artists/batch/{nbArtists}':
+    get:
+      summary: Importer un nombre aléatoire d'artistes
+      parameters:
+        - name: nbArtists
+          in: path
+          required: true
+          description: Nombre d'artistes à générer aléatoirement
+          schema:
+            type: integer
+            example: 20
+      responses:
+        '201':
+          description: Artistes importés avec succès
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BatchArtistResponse'
+        '502':
+          description: Erreur lors de la communication avec l'API externe
+components:
+  schemas:
+    Movie:
+      type: object
+      properties:
+        title:
+          type: string
+          example: "Inception"
+        releaseYear:
+          type: integer
+          example: 2010
+        description:
+          type: string
+          example: "Un voleur qui s'infiltre dans les rêves..."
+        director:
+          type: string
+          example: "Christopher Nolan"
+        actors:
+          type: array
+          items:
+            type: string
+          example: ["Leonardo DiCaprio", "Joseph Gordon-Levitt"]
+        genres:
+          type: array
+          items:
+            type: string
+          example: ["Science-Fiction", "Thriller"]
+        minAge:
+          type: integer
+          example: 12
+        rating:
+          type: number
+          example: 8.8
+    Artist:
+      type: object
+      properties:
+        name:
+          type: string
+          example: "Leonardo DiCaprio"
+        job:
+          type: string
+          enum: [Actor, Director]
+        birthday:
+          type: string
+          format: date
+          example: "1974-11-11"
+        biography:
+          type: string
+          example: "Acteur américain né à Los Angeles..."
+    BatchMovieResponse:
+      type: object
+      properties:
+        imported:
+          type: integer
+          example: 20
+        skipped:
+          type: integer
+          example: 3
+        movies:
+          type: array
+          items:
+            $ref: '#/components/schemas/Movie'
+    BatchArtistResponse:
+      type: object
+      properties:
+        imported:
+          type: integer
+          example: 20
+        skipped:
+          type: integer
+          example: 3
+        artists:
+          type: array
+          items:
+            $ref: '#/components/schemas/Artist'
