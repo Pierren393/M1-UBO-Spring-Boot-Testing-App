@@ -23,9 +23,9 @@ public class AuthController {
     }
 
     /**
-     * POST /auth/register - Enregistrer un nouvel utilisateur
+     * POST /auth/signup - Enregistrer un nouvel utilisateur
      */
-    @PostMapping("/register")
+    @PostMapping("/signup")
     public ResponseEntity<UserDto> register(@RequestBody RegisterRequestDto registerRequest) {
         UserDto user = authenticationService.register(registerRequest);
         return ResponseEntity.status(HttpStatus.CREATED).body(user);

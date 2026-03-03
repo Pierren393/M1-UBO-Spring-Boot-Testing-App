@@ -43,7 +43,7 @@ export default {
   methods: {
     async register() {
       try {
-        await api.post('/auth/register', this.form)
+        await api.post('/auth/signup', this.form)
         this.success = 'Inscription réussie ! Vous pouvez vous connecter.'
         this.form = { username: '', email: '', password: '' }
         setTimeout(() => this.$router.push('/login'), 2000)
