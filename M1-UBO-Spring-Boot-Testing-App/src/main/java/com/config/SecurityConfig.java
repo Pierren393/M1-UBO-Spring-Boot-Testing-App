@@ -1,6 +1,6 @@
 package com.config;
 
-import com.repositories.UserRepository;
+import com.dao.UserDao;
 import io.swagger.v3.oas.models.Components;
 import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.oas.models.info.Info;
@@ -37,7 +37,7 @@ import java.util.List;
 public class SecurityConfig {
 
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
-    private final UserRepository userRepository;
+    private final UserDao userDao;
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
@@ -78,7 +78,7 @@ public class SecurityConfig {
 
     @Bean
     public UserDetailsService userDetailsService() {
-        return pseudo -> userRepository.findByPseudo(pseudo)
+        return pseudo -> userDao.findByPseudo(pseudo)
                 .orElseThrow(() -> new UsernameNotFoundException("Utilisateur non trouvé: " + pseudo));
     }
 

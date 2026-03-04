@@ -1,9 +1,9 @@
 package com.services.impl;
 
+import com.dao.UserDao;
 import com.dtos.*;
 import com.entities.User;
 import com.mappers.UserMapper;
-import com.repositories.UserRepository;
 import com.services.AuthenticationService;
 import com.services.JwtService;
 import lombok.RequiredArgsConstructor;
@@ -24,7 +24,7 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class AuthenticationServiceImpl implements AuthenticationService {
 
-    private final UserRepository userRepository;
+    private final UserDao userDao;
     private final UserMapper userMapper;
     private final PasswordEncoder passwordEncoder;
     private final JwtService jwtService;
@@ -32,12 +32,12 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 
     @Override
     public AuthResponseDto register(RegisterRequestDto request) {
-        if (userRepository.existsByPseudo(request.getPseudo())) {
+        if (userDao.existsByPseudo(request.getPseudo())) {
             throw new ResponseStatusException(HttpStatus.CONFLICT, "Ce pseudo est déjà utilisé");
         }
         User user = userMapper.toEntity(request);
         user.setMotDePasse(passwordEncoder.encode(request.getMotDePasse()));
-        userRepository.save(user);
+        userDao.save(user);
         String token = jwtService.generateToken(user);
         return AuthResponseDto.builder().token(token).user(userMapper.toDto(user)).build();
     }
@@ -46,7 +46,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
     public AuthResponseDto login(LoginRequestDto request) {
         authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(request.getPseudo(), request.getMotDePasse()));
-        User user = userRepository.findByPseudo(request.getPseudo())
+        User user = userDao.findByPseudo(request.getPseudo())
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Utilisateur non trouvé"));
         String token = jwtService.generateToken(user);
         return AuthResponseDto.builder().token(token).user(userMapper.toDto(user)).build();
@@ -54,19 +54,19 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 
     @Override
     public List<UserDto> getAllUsers() {
-        return userRepository.findAll().stream().map(userMapper::toDto).collect(Collectors.toList());
+        return userDao.findAll().stream().map(userMapper::toDto).collect(Collectors.toList());
     }
 
     @Override
     public UserDto getUserByPseudo(String pseudo) {
-        User user = userRepository.findByPseudo(pseudo)
+        User user = userDao.findByPseudo(pseudo)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Utilisateur non trouvé"));
         return userMapper.toDto(user);
     }
 
     @Override
     public UserDto updateUser(String pseudo, UpdateUserRequestDto request, String currentUserPseudo) {
-        User user = userRepository.findByPseudo(pseudo)
+        User user = userDao.findByPseudo(pseudo)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Utilisateur non trouvé"));
         if (!pseudo.equals(currentUserPseudo) && !isAdmin(currentUserPseudo)) {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Accès interdit");
@@ -75,21 +75,21 @@ public class AuthenticationServiceImpl implements AuthenticationService {
         if (request.getMotDePasse() != null && !request.getMotDePasse().isBlank()) {
             user.setMotDePasse(passwordEncoder.encode(request.getMotDePasse()));
         }
-        userRepository.save(user);
+        userDao.save(user);
         return userMapper.toDto(user);
     }
 
     @Override
     public void deleteUser(String pseudo, String currentUserPseudo) {
-        User user = userRepository.findByPseudo(pseudo)
+        User user = userDao.findByPseudo(pseudo)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Utilisateur non trouvé"));
         if (!pseudo.equals(currentUserPseudo) && !isAdmin(currentUserPseudo)) {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Accès interdit");
         }
-        userRepository.delete(user);
+        userDao.delete(user);
     }
 
     private boolean isAdmin(String pseudo) {
-        return userRepository.findByPseudo(pseudo).map(u -> "ADMIN".equals(u.getRole())).orElse(false);
+        return userDao.findByPseudo(pseudo).map(u -> "ADMIN".equals(u.getRole())).orElse(false);
     }
 }

@@ -11,7 +11,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class PosterDto {
-    private Long id;
+    private String id;
     private String title;
     private String imageUrl;
     private Long movieId;
