@@ -8,7 +8,7 @@ public class TestJDBC {
    public static void main(String argv[]) {
 
       try {
-         Connection conn = DriverManager.getConnection("jdbc:mariadb://obiwan.univ-brest.fr:3306/e22002182_db1", "e22002182sql", "20ok2UVf");
+         Connection conn = DriverManager.getConnection("jdbc:mariadb://obiwan.univ-brest.fr:3306/e22002182_db2", "e22002182sql", "20ok2UVf");
          System.out.println("Connexion JDBC OK");
 
          Statement req = conn.createStatement();

@@ -1,28 +1,47 @@
 package com.mappers;
 
+import com.dtos.RegisterRequestDto;
+import com.dtos.UpdateUserRequestDto;
 import com.dtos.UserDto;
 import com.entities.User;
 import org.springframework.stereotype.Component;
 
 /**
- * Mapper responsable de la conversion entre l'entité User et le DTO UserDto.
+ * Mapper pour convertir entre l'entité User et ses DTOs.
  */
 @Component
 public class UserMapper {
 
-    /**
-     * Convertit une entité User en DTO UserDto (sans le password)
-     */
     public UserDto toDto(User user) {
-        if (user == null) {
-            return null;
-        }
+        if (user == null) return null;
+        return UserDto.builder()
+                .pseudo(user.getPseudo())
+                .nom(user.getNom())
+                .prenom(user.getPrenom())
+                .age(user.getAge())
+                .adresse(user.getAdresse())
+                .role(user.getRole())
+                .build();
+    }
 
-        UserDto userDto = new UserDto();
-        userDto.setId(user.getId());
-        userDto.setEmail(user.getEmail());
-        userDto.setUsername(user.getUsername());
-        userDto.setCreatedAt(user.getCreatedAt());
-        return userDto;
+    public User toEntity(RegisterRequestDto dto) {
+        if (dto == null) return null;
+        return User.builder()
+                .pseudo(dto.getPseudo())
+                .nom(dto.getNom())
+                .prenom(dto.getPrenom())
+                .age(dto.getAge())
+                .adresse(dto.getAdresse())
+                .motDePasse(dto.getMotDePasse())
+                .role("USER")
+                .build();
+    }
+
+    public void updateEntity(UpdateUserRequestDto dto, User user) {
+        if (dto == null || user == null) return;
+        if (dto.getNom() != null) user.setNom(dto.getNom());
+        if (dto.getPrenom() != null) user.setPrenom(dto.getPrenom());
+        if (dto.getAge() != null) user.setAge(dto.getAge());
+        if (dto.getAdresse() != null) user.setAdresse(dto.getAdresse());
     }
 }

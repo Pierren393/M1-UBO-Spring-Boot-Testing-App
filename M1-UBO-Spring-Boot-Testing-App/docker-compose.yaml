@@ -2,14 +2,14 @@ services:
   # authentication api (servlet simple)
   authentication-api:
     image: gitlab-depinfo.univ-brest.fr:5050/e22002182/apis/authentication-api:latest
-    # la version docker de l'image se connecte a la base `authdb:3306/e22002182_db1` avec l'utilisateur `e22002182sql` et le mot de passe `20ok2UVf`
+    # la version docker de l'image se connecte a la base `authdb:3306/e22002182_db2` avec l'utilisateur `e22002182sql` et le mot de passe `20ok2UVf`
     ports:
       - "12020:8080"
     depends_on:
       - authdb
 
   authdb:
-    # initialisation de la base : `mysql -h 127.0.0.1 -u e22002182sql -p e22002182_db1 < init.sql`
+    # initialisation de la base : `mysql -h 127.0.0.1 -u e22002182sql -p e22002182_db2 < init.sql`
     image: mariadb:11.6.2-ubi9
     restart: unless-stopped
     ports:
@@ -23,7 +23,7 @@ services:
       MARIADB_USER: e22002182sql
       MARIADB_PASSWORD: 20ok2UVf
       MARIADB_ROOT_PASSWORD: 20ok2UVf
-      MARIADB_DATABASE: e22002182_db1
+      MARIADB_DATABASE: e22002182_db2
 
   # student-api (appli springboot)
   studentapi:

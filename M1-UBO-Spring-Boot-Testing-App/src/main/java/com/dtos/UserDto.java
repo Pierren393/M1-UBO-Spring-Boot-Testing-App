@@ -1,17 +1,22 @@
 package com.dtos;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
-import java.time.LocalDateTime;
-
+/**
+ * DTO de sortie représentant un utilisateur (sans mot de passe).
+ */
 @Data
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
 public class UserDto {
-
-    private Long id;
-    private String email;
-    private String username;
-
-    @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss'Z'")
-    private LocalDateTime createdAt;
+    private String pseudo;
+    private String nom;
+    private String prenom;
+    private Integer age;
+    private String adresse;
+    private String role;
 }

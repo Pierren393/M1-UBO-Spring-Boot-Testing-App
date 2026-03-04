@@ -6,7 +6,7 @@
 <class>donnees.Discipline</class>
 <class>donnees.Sportif</class>
 <properties>
-<property name="javax.persistence.jdbc.url" value="jdbc:mariadb://obiwan.univ-brest.fr:3306/e22002182_db1"/>
+<property name="javax.persistence.jdbc.url" value="jdbc:mariadb://obiwan.univ-brest.fr:3306/e22002182_db2"/>
 <property name="javax.persistence.jdbc.user" value="e22002182sql"/>
 <property name="javax.persistence.jdbc.password" value="20ok2UVf"/>
 <property name="javax.persistence.jdbc.driver" value="org.mariadb.jdbc.Driver"/>

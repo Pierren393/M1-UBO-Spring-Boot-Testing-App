@@ -3,6 +3,13 @@ package com.controllers;
 import com.dtos.PosterDto;
 import com.dtos.PosterInputDto;
 import com.services.PosterService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -10,61 +17,60 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 /**
- * Contrôleur pour la gestion des posters de films.
- * Fournit les endpoints CRUD conformes au contrat OpenAPI.
+ * Contrôleur REST pour la gestion des posters.
  */
 @RestController
-@RequestMapping("/posters")
+@RequestMapping("/poster")
+@RequiredArgsConstructor
+@Tag(name = "Posters", description = "API de gestion des posters de films")
 public class PosterController {
 
     private final PosterService posterService;
 
-    public PosterController(PosterService posterService) {
-        this.posterService = posterService;
-    }
-
-    /**
-     * GET /posters - Liste tous les posters, avec filtre optionnel par movieId
-     */
     @GetMapping
-    public ResponseEntity<List<PosterDto>> getAllPosters(
-            @RequestParam(required = false) String movieId) {
-        List<PosterDto> posters = posterService.getAllPosters(movieId);
-        return ResponseEntity.ok(posters);
+    @Operation(summary = "Lister tous les posters")
+    @ApiResponse(responseCode = "200", description = "Liste des posters")
+    public ResponseEntity<List<PosterDto>> getAllPosters() {
+        return ResponseEntity.ok(posterService.getAllPosters());
     }
 
-    /**
-     * POST /posters - Ajoute un nouveau poster
-     */
-    @PostMapping
-    public ResponseEntity<PosterDto> createPoster(@RequestBody PosterInputDto posterInputDto) {
-        PosterDto createdPoster = posterService.createPoster(posterInputDto);
-        return ResponseEntity.status(HttpStatus.CREATED).body(createdPoster);
-    }
-
-    /**
-     * GET /posters/{id} - Trouver un poster par son ID
-     */
     @GetMapping("/{id}")
+    @Operation(summary = "Récupérer un poster")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Poster trouvé"),
+            @ApiResponse(responseCode = "404", description = "Poster non trouvé")
+    })
     public ResponseEntity<PosterDto> getPosterById(@PathVariable Long id) {
-        PosterDto poster = posterService.getPosterById(id);
-        return ResponseEntity.ok(poster);
+        return ResponseEntity.ok(posterService.getPosterById(id));
     }
 
-    /**
-     * PUT /posters/{id} - Met à jour un poster
-     */
+    @PostMapping
+    @Operation(summary = "Créer un poster", security = @SecurityRequirement(name = "bearerAuth"))
+    @ApiResponses({
+            @ApiResponse(responseCode = "201", description = "Poster créé"),
+            @ApiResponse(responseCode = "400", description = "Données invalides"),
+            @ApiResponse(responseCode = "401", description = "Non authentifié")
+    })
+    public ResponseEntity<PosterDto> createPoster(@Valid @RequestBody PosterInputDto posterInputDto) {
+        return ResponseEntity.status(HttpStatus.CREATED).body(posterService.createPoster(posterInputDto));
+    }
+
     @PutMapping("/{id}")
-    public ResponseEntity<PosterDto> updatePoster(@PathVariable Long id,
-            @RequestBody PosterInputDto posterInputDto) {
-        PosterDto updatedPoster = posterService.updatePoster(id, posterInputDto);
-        return ResponseEntity.ok(updatedPoster);
+    @Operation(summary = "Modifier un poster", security = @SecurityRequirement(name = "bearerAuth"))
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Poster modifié"),
+            @ApiResponse(responseCode = "404", description = "Poster non trouvé")
+    })
+    public ResponseEntity<PosterDto> updatePoster(@PathVariable Long id, @Valid @RequestBody PosterInputDto posterInputDto) {
+        return ResponseEntity.ok(posterService.updatePoster(id, posterInputDto));
     }
 
-    /**
-     * DELETE /posters/{id} - Supprime un poster
-     */
     @DeleteMapping("/{id}")
+    @Operation(summary = "Supprimer un poster", security = @SecurityRequirement(name = "bearerAuth"))
+    @ApiResponses({
+            @ApiResponse(responseCode = "204", description = "Poster supprimé"),
+            @ApiResponse(responseCode = "404", description = "Poster non trouvé")
+    })
     public ResponseEntity<Void> deletePoster(@PathVariable Long id) {
         posterService.deletePoster(id);
         return ResponseEntity.noContent().build();

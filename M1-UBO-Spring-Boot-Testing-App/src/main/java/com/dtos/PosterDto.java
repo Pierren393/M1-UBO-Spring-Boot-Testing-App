@@ -1,25 +1,21 @@
 package com.dtos;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
+import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
-import java.time.LocalDateTime;
-import java.util.List;
-
+/**
+ * DTO de sortie représentant un poster.
+ */
 @Data
+@NoArgsConstructor
+@AllArgsConstructor
 public class PosterDto {
-
     private Long id;
-    private String movieId;
-    private String titreFilm;
-    private String realisateur;
-    private Integer anneeSortie;
-    private List<String> genres;
+    private String title;
     private String imageUrl;
-    private String synopsis;
-    private List<String> acteursPrincipaux;
+    private Long movieId;
+    private String description;
+    private Double price;
     private DimensionsDto dimensions;
-
-    @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss'Z'")
-    private LocalDateTime dateAjout;
 }

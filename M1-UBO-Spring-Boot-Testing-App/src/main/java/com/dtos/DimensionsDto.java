@@ -1,10 +1,16 @@
 package com.dtos;
 
+import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
+/**
+ * DTO représentant les dimensions d'un poster.
+ */
 @Data
+@NoArgsConstructor
+@AllArgsConstructor
 public class DimensionsDto {
-
-    private Integer largeur;
-    private Integer hauteur;
+    private Double width;
+    private Double height;
 }

@@ -6,118 +6,90 @@ import com.mappers.UserMapper;
 import com.repositories.UserRepository;
 import com.services.AuthenticationService;
 import com.services.JwtService;
-import jakarta.persistence.EntityNotFoundException;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.util.List;
+import java.util.stream.Collectors;
+
 /**
- * Implémentation du service d'authentification.
- * Gère l'inscription, la connexion et le CRUD des utilisateurs.
+ * Implémentation du service d'authentification et de gestion des utilisateurs.
  */
-@Service("authenticationService")
-@Transactional
+@Service
+@RequiredArgsConstructor
 public class AuthenticationServiceImpl implements AuthenticationService {
 
     private final UserRepository userRepository;
     private final UserMapper userMapper;
-    private final JwtService jwtService;
     private final PasswordEncoder passwordEncoder;
-
-    public AuthenticationServiceImpl(UserRepository userRepository,
-                                     UserMapper userMapper,
-                                     JwtService jwtService,
-                                     PasswordEncoder passwordEncoder) {
-        this.userRepository = userRepository;
-        this.userMapper = userMapper;
-        this.jwtService = jwtService;
-        this.passwordEncoder = passwordEncoder;
-    }
+    private final JwtService jwtService;
+    private final AuthenticationManager authenticationManager;
 
     @Override
-    public UserDto register(RegisterRequestDto registerRequest) {
-        // Vérifier si l'email existe déjà
-        if (userRepository.existsByEmail(registerRequest.getEmail())) {
-            throw new ResponseStatusException(HttpStatus.CONFLICT, "Un utilisateur avec cet email existe déjà");
+    public AuthResponseDto register(RegisterRequestDto request) {
+        if (userRepository.existsByPseudo(request.getPseudo())) {
+            throw new ResponseStatusException(HttpStatus.CONFLICT, "Ce pseudo est déjà utilisé");
         }
-
-        User user = new User();
-        user.setEmail(registerRequest.getEmail());
-        user.setUsername(registerRequest.getUsername());
-        user.setPassword(passwordEncoder.encode(registerRequest.getPassword()));
-
-        User savedUser = userRepository.save(user);
-        return userMapper.toDto(savedUser);
+        User user = userMapper.toEntity(request);
+        user.setMotDePasse(passwordEncoder.encode(request.getMotDePasse()));
+        userRepository.save(user);
+        String token = jwtService.generateToken(user);
+        return AuthResponseDto.builder().token(token).user(userMapper.toDto(user)).build();
     }
 
     @Override
-    @Transactional(readOnly = true)
-    public AuthResponseDto login(LoginRequestDto loginRequest) {
-        User user = userRepository.findByEmail(loginRequest.getEmail())
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Identifiants invalides"));
-
-        if (!passwordEncoder.matches(loginRequest.getPassword(), user.getPassword())) {
-            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Identifiants invalides");
-        }
-
-        String accessToken = jwtService.generateToken(user.getId(), user.getEmail());
-        // Refresh token simplifié : même token avec expiration plus longue
-        String refreshToken = jwtService.generateToken(user.getId(), user.getEmail());
-
-        return new AuthResponseDto(accessToken, refreshToken, jwtService.getExpiration(), "Bearer");
+    public AuthResponseDto login(LoginRequestDto request) {
+        authenticationManager.authenticate(
+                new UsernamePasswordAuthenticationToken(request.getPseudo(), request.getMotDePasse()));
+        User user = userRepository.findByPseudo(request.getPseudo())
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Utilisateur non trouvé"));
+        String token = jwtService.generateToken(user);
+        return AuthResponseDto.builder().token(token).user(userMapper.toDto(user)).build();
     }
 
     @Override
-    @Transactional(readOnly = true)
-    public UserDto getCurrentUser(String token) {
-        String email = jwtService.getEmailFromToken(token);
-        User user = userRepository.findByEmail(email)
-                .orElseThrow(() -> new EntityNotFoundException("Utilisateur non trouvé"));
+    public List<UserDto> getAllUsers() {
+        return userRepository.findAll().stream().map(userMapper::toDto).collect(Collectors.toList());
+    }
+
+    @Override
+    public UserDto getUserByPseudo(String pseudo) {
+        User user = userRepository.findByPseudo(pseudo)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Utilisateur non trouvé"));
         return userMapper.toDto(user);
     }
 
     @Override
-    @Transactional(readOnly = true)
-    public UserDto getUserById(Long id) {
-        User user = userRepository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException(
-                        String.format("L'utilisateur avec l'ID %d n'existe pas", id)));
+    public UserDto updateUser(String pseudo, UpdateUserRequestDto request, String currentUserPseudo) {
+        User user = userRepository.findByPseudo(pseudo)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Utilisateur non trouvé"));
+        if (!pseudo.equals(currentUserPseudo) && !isAdmin(currentUserPseudo)) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Accès interdit");
+        }
+        userMapper.updateEntity(request, user);
+        if (request.getMotDePasse() != null && !request.getMotDePasse().isBlank()) {
+            user.setMotDePasse(passwordEncoder.encode(request.getMotDePasse()));
+        }
+        userRepository.save(user);
         return userMapper.toDto(user);
     }
 
     @Override
-    public UserDto updateUser(Long id, UpdateUserRequestDto updateRequest) {
-        User user = userRepository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException(
-                        String.format("L'utilisateur avec l'ID %d n'existe pas", id)));
-
-        if (updateRequest.getEmail() != null) {
-            // Vérifier que le nouvel email n'est pas déjà pris par un autre user
-            if (!user.getEmail().equals(updateRequest.getEmail())
-                    && userRepository.existsByEmail(updateRequest.getEmail())) {
-                throw new ResponseStatusException(HttpStatus.CONFLICT, "Cet email est déjà utilisé");
-            }
-            user.setEmail(updateRequest.getEmail());
+    public void deleteUser(String pseudo, String currentUserPseudo) {
+        User user = userRepository.findByPseudo(pseudo)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Utilisateur non trouvé"));
+        if (!pseudo.equals(currentUserPseudo) && !isAdmin(currentUserPseudo)) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Accès interdit");
         }
-        if (updateRequest.getUsername() != null) {
-            user.setUsername(updateRequest.getUsername());
-        }
-        if (updateRequest.getPassword() != null) {
-            user.setPassword(passwordEncoder.encode(updateRequest.getPassword()));
-        }
-
-        User updatedUser = userRepository.save(user);
-        return userMapper.toDto(updatedUser);
+        userRepository.delete(user);
     }
 
-    @Override
-    public void deleteUser(Long id) {
-        if (!userRepository.existsById(id)) {
-            throw new EntityNotFoundException(
-                    String.format("L'utilisateur avec l'ID %d n'existe pas", id));
-        }
-        userRepository.deleteById(id);
+    private boolean isAdmin(String pseudo) {
+        return userRepository.findByPseudo(pseudo).map(u -> "ADMIN".equals(u.getRole())).orElse(false);
     }
 }

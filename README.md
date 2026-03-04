@@ -24,7 +24,7 @@ docker-compose up --build
 - Frontend : http://localhost:5173
 - Swagger UI : http://localhost:8080/swagger-ui.html
 
-### Sans Docker
+### En local
 
 #### Backend
 
@@ -33,13 +33,44 @@ cd M1-UBO-Spring-Boot-Testing-App
 ./gradlew bootRun
 ```
 
-#### Frontend
+#### Frontend (dans un autre terminal)
 
 ```bash
 cd frontend
 npm install
 npm run dev
 ```
+
+### Déploiement sur le serveur (info-tpsi)
+
+#### 1. Générer l'image Docker
+
+```bash
+cd M1-UBO-Spring-Boot-Testing-App
+./gradlew bootBuildImage
+```
+
+#### 2. Se connecter au registry GitLab
+
+```bash
+docker login gitlab-depinfo.univ-brest.fr:5050
+```
+
+#### 3. Pousser l'image
+
+```bash
+docker image push gitlab-depinfo.univ-brest.fr:5050/e22002182/apis/music-api:v1.0.0
+```
+
+#### 4. Se connecter au serveur et lancer
+
+```bash
+ssh e22002182@info-tpsi.univ-brest.fr
+docker login gitlab-depinfo.univ-brest.fr:5050
+API_PORT=<votre_port> docker-compose up -d
+```
+
+Remplacez `<votre_port>` par un port de votre plage assignée.
 
 ### Scripts
 

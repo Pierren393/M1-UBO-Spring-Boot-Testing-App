@@ -6,8 +6,10 @@ import org.springframework.stereotype.Repository;
 
 import java.util.List;
 
+/**
+ * Repository pour l'accès aux données des posters.
+ */
 @Repository
 public interface PosterRepository extends JpaRepository<Poster, Long> {
-
-    List<Poster> findByMovieId(String movieId);
+    List<Poster> findByMovieId(Long movieId);
 }

@@ -1,3 +1,4 @@
+// Ce fichier est obsolète (ancien template Dog). Supprimez-le du projet.
 package com.dtos;
 
 import jakarta.validation.constraints.NotBlank;

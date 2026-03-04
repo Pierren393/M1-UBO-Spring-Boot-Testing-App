@@ -6,73 +6,56 @@ import com.entities.Poster;
 import com.mappers.PosterMapper;
 import com.repositories.PosterRepository;
 import com.services.PosterService;
-import jakarta.persistence.EntityNotFoundException;
+import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
- * Implémentation du service de gestion des posters de films.
+ * Implémentation du service de gestion des posters.
  */
-@Service("posterService")
-@Transactional
+@Service
+@RequiredArgsConstructor
 public class PosterServiceImpl implements PosterService {
 
     private final PosterRepository posterRepository;
     private final PosterMapper posterMapper;
 
-    public PosterServiceImpl(PosterRepository posterRepository, PosterMapper posterMapper) {
-        this.posterRepository = posterRepository;
-        this.posterMapper = posterMapper;
+    @Override
+    public List<PosterDto> getAllPosters() {
+        return posterRepository.findAll().stream().map(posterMapper::toDto).collect(Collectors.toList());
     }
 
     @Override
-    @Transactional(readOnly = true)
-    public List<PosterDto> getAllPosters(String movieId) {
-        List<Poster> posters;
-        if (movieId != null && !movieId.isBlank()) {
-            posters = posterRepository.findByMovieId(movieId);
-        } else {
-            posters = posterRepository.findAll();
-        }
-        return posters.stream()
-                .map(posterMapper::toDto)
-                .toList();
-    }
-
-    @Override
-    @Transactional(readOnly = true)
     public PosterDto getPosterById(Long id) {
         Poster poster = posterRepository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException(
-                        String.format("Le poster avec l'ID %d n'existe pas", id)));
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Poster non trouvé"));
         return posterMapper.toDto(poster);
     }
 
     @Override
     public PosterDto createPoster(PosterInputDto posterInputDto) {
         Poster poster = posterMapper.toEntity(posterInputDto);
-        Poster savedPoster = posterRepository.save(poster);
-        return posterMapper.toDto(savedPoster);
+        poster = posterRepository.save(poster);
+        return posterMapper.toDto(poster);
     }
 
     @Override
     public PosterDto updatePoster(Long id, PosterInputDto posterInputDto) {
         Poster poster = posterRepository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException(
-                        String.format("Le poster avec l'ID %d n'existe pas", id)));
-
-        posterMapper.updateEntity(poster, posterInputDto);
-        Poster updatedPoster = posterRepository.save(poster);
-        return posterMapper.toDto(updatedPoster);
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Poster non trouvé"));
+        posterMapper.updateEntity(posterInputDto, poster);
+        poster = posterRepository.save(poster);
+        return posterMapper.toDto(poster);
     }
 
     @Override
     public void deletePoster(Long id) {
         if (!posterRepository.existsById(id)) {
-            throw new EntityNotFoundException(
-                    String.format("Le poster avec l'ID %d n'existe pas", id));
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Poster non trouvé");
         }
         posterRepository.deleteById(id);
     }

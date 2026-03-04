@@ -1,14 +1,18 @@
 package com.entities;
 
-import java.time.LocalDateTime;
-import java.util.List;
-
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
+/**
+ * Entité représentant un poster de film.
+ */
 @Entity
-@Table(name = "posters")
+@Table(name = "poster")
 @Data
+@NoArgsConstructor
+@AllArgsConstructor
 public class Poster {
 
     @Id
@@ -16,39 +20,16 @@ public class Poster {
     private Long id;
 
     @Column(nullable = false)
-    private String movieId;
+    private String title;
 
-    private String titreFilm;
-
-    private String realisateur;
-
-    private Integer anneeSortie;
-
-    @ElementCollection
-    @CollectionTable(name = "poster_genres", joinColumns = @JoinColumn(name = "poster_id"))
-    @Column(name = "genre")
-    private List<String> genres;
-
-    @Column(nullable = false)
+    @Column(name = "image_url")
     private String imageUrl;
 
-    @Column(length = 1000)
-    private String synopsis;
+    @Column(name = "movie_id")
+    private Long movieId;
 
-    @ElementCollection
-    @CollectionTable(name = "poster_acteurs", joinColumns = @JoinColumn(name = "poster_id"))
-    @Column(name = "acteur")
-    private List<String> acteursPrincipaux;
-
-    private Integer largeur;
-
-    private Integer hauteur;
-
-    @Column(nullable = false, updatable = false)
-    private LocalDateTime dateAjout;
-
-    @PrePersist
-    protected void onCreate() {
-        this.dateAjout = LocalDateTime.now();
-    }
+    private String description;
+    private Double price;
+    private Double width;
+    private Double height;
 }

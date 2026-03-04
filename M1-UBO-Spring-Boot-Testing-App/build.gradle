@@ -38,3 +38,7 @@ dependencies {
 test {
 	useJUnitPlatform()
 }
+
+bootBuildImage {
+    imageName = "gitlab-depinfo.univ-brest.fr:5050/e22002182/apis/authentication-api:v1.0.0"
+}
