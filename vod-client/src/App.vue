@@ -1,14 +1,15 @@
 <template>
   <div id="app">
     <nav class="navbar">
-      <div class="nav-brand">🐾 API Manager</div>
+      <div class="nav-brand">🎬 VOD Manager</div>
       <div class="nav-links">
-        <router-link to="/dogs">Dogs</router-link>
-        <router-link to="/posters">Posters</router-link>
-        <router-link v-if="!isLoggedIn" to="/login">Login</router-link>
-        <router-link v-if="!isLoggedIn" to="/register">Register</router-link>
-        <router-link v-if="isLoggedIn" to="/profile">Profile</router-link>
-        <button v-if="isLoggedIn" @click="logout" class="btn-logout">Logout</button>
+        <router-link to="/films">Films</router-link>
+        <router-link to="/artists">Artistes</router-link>
+        <router-link v-if="isLoggedIn" to="/reservations">Mes Réservations</router-link>
+        <router-link v-if="isLoggedIn" to="/admin">Admin</router-link>
+        <router-link v-if="!isLoggedIn" to="/login">Connexion</router-link>
+        <router-link v-if="!isLoggedIn" to="/register">Inscription</router-link>
+        <button v-if="isLoggedIn" @click="logout" class="btn-logout">Déconnexion</button>
       </div>
     </nav>
     <main class="container">

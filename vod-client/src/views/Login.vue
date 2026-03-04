@@ -3,12 +3,12 @@
     <h2>Connexion</h2>
     <form @submit.prevent="handleLogin">
       <div class="form-group">
-        <label for="pseudo">Pseudo</label>
-        <input type="text" id="pseudo" v-model="form.pseudo" required placeholder="Votre pseudo" />
+        <label for="email">Adresse Email</label>
+        <input type="email" id="email" v-model="form.email" required placeholder="Votre email" />
       </div>
       <div class="form-group">
-        <label for="motDePasse">Mot de passe</label>
-        <input type="password" id="motDePasse" v-model="form.motDePasse" required placeholder="Votre mot de passe" />
+        <label for="password">Mot de passe</label>
+        <input type="password" id="password" v-model="form.password" required placeholder="Votre mot de passe" />
       </div>
       <p v-if="error" class="error">{{ error }}</p>
       <button type="submit" :disabled="loading">{{ loading ? 'Connexion...' : 'Se connecter' }}</button>
@@ -26,17 +26,16 @@ const router = useRouter()
 const loading = ref(false)
 const error = ref('')
 const form = ref({
-  pseudo: '',
-  motDePasse: ''
+  email: '',
+  password: ''
 })
 
 const handleLogin = async () => {
   loading.value = true
   error.value = ''
   try {
-    const response = await api.post('/user/login', form.value)
-    localStorage.setItem('token', response.data.token)
-    localStorage.setItem('user', JSON.stringify(response.data.user))
+    const response = await api.post('/auth/login', form.value)
+    localStorage.setItem('token', response.data.accessToken)
     router.push('/')
   } catch (err) {
     error.value = err.response?.data?.message || 'Identifiants invalides'

@@ -3,28 +3,16 @@
     <h2>Inscription</h2>
     <form @submit.prevent="handleRegister">
       <div class="form-group">
-        <label for="pseudo">Pseudo</label>
-        <input type="text" id="pseudo" v-model="form.pseudo" required placeholder="Votre pseudo" />
+        <label for="username">Pseudo d'affichage</label>
+        <input type="text" id="username" v-model="form.username" required placeholder="Votre pseudo" />
       </div>
       <div class="form-group">
-        <label for="nom">Nom</label>
-        <input type="text" id="nom" v-model="form.nom" required placeholder="Votre nom" />
+        <label for="email">Adresse Email</label>
+        <input type="email" id="email" v-model="form.email" required placeholder="Votre email" />
       </div>
       <div class="form-group">
-        <label for="prenom">Prénom</label>
-        <input type="text" id="prenom" v-model="form.prenom" required placeholder="Votre prénom" />
-      </div>
-      <div class="form-group">
-        <label for="age">Âge</label>
-        <input type="number" id="age" v-model.number="form.age" required min="0" placeholder="Votre âge" />
-      </div>
-      <div class="form-group">
-        <label for="adresse">Adresse</label>
-        <input type="text" id="adresse" v-model="form.adresse" required placeholder="Votre adresse" />
-      </div>
-      <div class="form-group">
-        <label for="motDePasse">Mot de passe</label>
-        <input type="password" id="motDePasse" v-model="form.motDePasse" required placeholder="Votre mot de passe" />
+        <label for="password">Mot de passe</label>
+        <input type="password" id="password" v-model="form.password" required placeholder="Votre mot de passe" />
       </div>
       <p v-if="error" class="error">{{ error }}</p>
       <button type="submit" :disabled="loading">{{ loading ? 'Inscription...' : "S'inscrire" }}</button>
@@ -42,25 +30,21 @@ const router = useRouter()
 const loading = ref(false)
 const error = ref('')
 const form = ref({
-  pseudo: '',
-  nom: '',
-  prenom: '',
-  age: null,
-  adresse: '',
-  motDePasse: ''
+  username: '',
+  email: '',
+  password: ''
 })
 
 const handleRegister = async () => {
   loading.value = true
   error.value = ''
   try {
-    const response = await api.post('/user', form.value)
-    localStorage.setItem('token', response.data.token)
-    localStorage.setItem('user', JSON.stringify(response.data.user))
+    const response = await api.post('/auth/register', form.value)
+    localStorage.setItem('token', response.data.accessToken)
     router.push('/')
   } catch (err) {
     if (err.response?.status === 409) {
-      error.value = 'Ce pseudo est déjà utilisé'
+      error.value = 'Cet email est déjà utilisé'
     } else {
       error.value = err.response?.data?.message || "Erreur lors de l'inscription"
     }

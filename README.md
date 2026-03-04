@@ -1,4 +1,4 @@
-# 🎬 API Music - Gestion des Utilisateurs et Posters
+# 🎬 API VOD - Gestion des Utilisateurs et Posters
 
 ## Description
 
@@ -36,8 +36,8 @@ cd M1-UBO-Spring-Boot-Testing-App
 #### Frontend (dans un autre terminal)
 
 ```bash
-cd frontend
-npm install
+cd vod-client
+# npm install
 npm run dev
 ```
 
@@ -56,10 +56,10 @@ cd M1-UBO-Spring-Boot-Testing-App
 docker login gitlab-depinfo.univ-brest.fr:5050
 ```
 
-#### 3. Pousser l'image
+#### 3. Pousser l'image Docker
 
 ```bash
-docker image push gitlab-depinfo.univ-brest.fr:5050/e22002182/apis/music-api:v1.0.0
+docker image push gitlab-depinfo.univ-brest.fr:5050/e22002182/apis/authentication-api:v1.0.0
 ```
 
 #### 4. Se connecter au serveur et lancer
@@ -72,12 +72,6 @@ API_PORT=<votre_port> docker-compose up -d
 
 Remplacez `<votre_port>` par un port de votre plage assignée.
 
-### Scripts
-
-```bash
-./start.sh   # Lance le backend et le frontend
-./stop.sh    # Arrête les services
-```
 
 ## 📚 API Endpoints
 

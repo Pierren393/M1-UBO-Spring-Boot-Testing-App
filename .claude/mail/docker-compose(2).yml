@@ -1,7 +1,7 @@
 services:
   # authentication api (servlet simple)
   authentication-api:
-    image: gitlab-depinfo.univ-brest.fr:5050/e12345678/apis/authentication-api:latest
+    image: gitlab-depinfo.univ-brest.fr:5050/e22002182/apis/authentication-api:latest
     # la version docker de l'image se connecte a la base `authdb:3306/authapidb` avec l'utilisateur `root` et le mot de passe `1234secure`
     ports:
       - "10001:8080" # remplacer 10001 par un port affecte a votre groupe
@@ -24,7 +24,7 @@ services:
 
   # student-api (appli springboot)
   studentapi:
-    image: gitlab-depinfo.univ-brest.fr:5050/e12345678/apis:latest
+    image: gitlab-depinfo.univ-brest.fr:5050/e22002182/apis:latest
     ports:
       - "10002:8080" # remplacer 10002 par un port affecte a votre groupe
     environment:
@@ -52,7 +52,7 @@ services:
   # message api (servlet simple)
   services:
   message-api:
-    image: gitlab-depinfo.univ-brest.fr:5050/e12345678/apis/message-api:latest
+    image: gitlab-depinfo.univ-brest.fr:5050/e22002182/apis/message-api:latest
     # l'image se connecte a obiwan en mongo
     ports:
       - "10003:8080" # remplacer 10003 par un port affecte a votre groupe

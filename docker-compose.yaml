@@ -1,0 +1,49 @@
+services:
+  # Base distante Obiwan (Pas besoin de configurer ici, géré par le réseau de l'UBO)
+
+  # ---------- API GATEWAY ----------
+  api-gateway:
+    image: gitlab-depinfo.univ-brest.fr:5050/e22002182/apis/api-gateway:v1.0.0
+    ports:
+      - "12081:8080" # Port assigné pour la Gateway
+
+  # ---------- AUTHENTICATION MICROSERVICE ----------
+  authentication-api:
+    image: gitlab-depinfo.univ-brest.fr:5050/e22002182/apis/authentication-api:v1.0.0
+    ports:
+      - "12082:8080" # Port assigné par le prof pour l'API
+    environment:
+      spring.datasource.url: jdbc:mariadb://authdb:3306/e22002182_db2
+      spring.datasource.username: e22002182sql
+      spring.datasource.password: 20ok2UVf
+      spring.jpa.hibernate.ddl-auto: update
+    depends_on:
+      - authdb
+
+  authdb:
+    image: mariadb:11.6.2-ubi9
+    restart: unless-stopped
+    ports:
+      - "12086:3306" # Port BDD assigné à votre groupe
+    volumes:
+      - "./data_auth:/var/lib/mysql"
+    environment:
+      MARIADB_DATABASE: e22002182_db2
+      MARIADB_ROOT_PASSWORD: 20ok2UVf
+
+
+  # ---------- POSTER MICROSERVICE ----------
+  poster-api:
+    image: gitlab-depinfo.univ-brest.fr:5050/e22002182/apis/poster-api:v1.0.0
+    ports:
+      - "12084:8080" # Port assigné pour le service Poster
+    environment:
+      # L'API Poster se connecte directement à Obiwan
+      spring.data.mongodb.uri: mongodb://obiwan.univ-brest.fr:27017/e22002182
+
+
+  # ---------- FRONTEND VOD-CLIENT ----------
+  vod-client:
+    image: gitlab-depinfo.univ-brest.fr:5050/e22002182/apis/vod-client:latest
+    ports:
+      - "12080:80" # Port assigné pour NGINX (Frontend)
