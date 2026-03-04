@@ -48,3 +48,8 @@ docker image tag monimagelocale:montag gitlab-depinfo.univ-brest.fr:5050/e123456
 puis : docker image push gitlab-depinfo.univ-brest.fr:5050/e12345678/apis/student-api:v1.0.0 # pour mettre en ligne sur le registry
 Une fois tout cela fait, il est possible d'utiliser le fichier docker compose pour lancer la stack applicative.
 
+
+Code Java des Servlet (si vous en avez)
+Code Spring
+partie client : pages HTML avec Vue.js
+
