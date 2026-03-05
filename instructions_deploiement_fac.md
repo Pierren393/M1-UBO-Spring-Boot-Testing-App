@@ -9,22 +9,22 @@ Le projet de code est maintenant **100% prêt et configuré pour le serveur**. V
 ## Étape 1 : Tout reconstruire (Optionnel mais recommandé)
 Ouvrez un terminal dans votre projet `M1-UBO-Spring-Boot-Testing-App` (sur votre ordinateur portable) et regénérez les images Docker locales toutes propres :
 ```bash
-sudo ./build-all.sh
+./build-all.sh
 ```
 
 ## Étape 2 : Envoyer les images sur GitLab UBO
 Toujours sur votre PC à la Fac, connectez-vous au registre (avec votre login `e22002182` et votre mot de passe ENT) :
 ```bash
-sudo docker login gitlab-depinfo.univ-brest.fr:5050 -u e22002182
+docker login gitlab-depinfo.univ-brest.fr:5050 -u e22002182
 ```
-⚠️ *Note: Si `sudo docker login` échoue, essayez sans `sudo` selon la configuration de votre Docker.*
+⚠️ *Note: Si `docker login` échoue, essayez sans `sudo` selon la configuration de votre Docker.*
 
 Puis poussez les 4 images :
 ```bash
-sudo docker push gitlab-depinfo.univ-brest.fr:5050/e22002182/apis/api-gateway:v1.0.0
-sudo docker push gitlab-depinfo.univ-brest.fr:5050/e22002182/apis/authentication-api:v1.0.0
-sudo docker push gitlab-depinfo.univ-brest.fr:5050/e22002182/apis/poster-api:v1.0.0
-sudo docker push gitlab-depinfo.univ-brest.fr:5050/e22002182/apis/vod-client:latest
+docker push gitlab-depinfo.univ-brest.fr:5050/e22002182/apis/api-gateway:v1.0.0
+docker push gitlab-depinfo.univ-brest.fr:5050/e22002182/apis/authentication-api:v1.0.0
+docker push gitlab-depinfo.univ-brest.fr:5050/e22002182/apis/poster-api:v1.0.0
+docker push gitlab-depinfo.univ-brest.fr:5050/e22002182/apis/vod-client:latest
 ```
 
 ## Étape 3 : Envoyer le fichier de configuration sur le serveur
