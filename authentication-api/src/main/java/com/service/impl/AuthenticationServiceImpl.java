@@ -1,6 +1,6 @@
 package com.service.impl;
 
-import com.repository.UserDao;
+import com.repository.UserRepository;
 import com.dto.*;
 import com.entity.User;
 import com.mapper.UserMapper;
@@ -23,7 +23,7 @@ import java.util.Objects;
 @RequiredArgsConstructor
 public class AuthenticationServiceImpl implements AuthenticationService {
 
-    private final UserDao userDao;
+    private final UserRepository userRepository;
     private final UserMapper userMapper;
     private final PasswordEncoder passwordEncoder;
     private final JwtService jwtService;
@@ -31,16 +31,17 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 
     @Override
     public AuthResponseDto register(RegisterRequestDto request) {
-        if (userDao.existsByEmail(request.getEmail())) {
+        if (userRepository.existsByEmail(request.getEmail())) {
             throw new ResponseStatusException(HttpStatus.CONFLICT, "Cet email est déjà utilisé");
         }
         User user = userMapper.toEntity(request);
         user.setPassword(passwordEncoder.encode(request.getPassword()));
-        userDao.save(user);
-        
-        // On suppose que votre jwtService utilise getUsername() (Spring Security) qui renvoie notre email configuré
+        userRepository.save(user);
+
+        // On suppose que votre jwtService utilise getUsername() (Spring Security) qui
+        // renvoie notre email configuré
         String token = jwtService.generateToken(user);
-        
+
         return AuthResponseDto.builder()
                 .accessToken(token)
                 .expiresIn(3600)
@@ -52,12 +53,12 @@ public class AuthenticationServiceImpl implements AuthenticationService {
     public AuthResponseDto login(LoginRequestDto request) {
         authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(request.getEmail(), request.getPassword()));
-                
-        User user = userDao.findByEmail(request.getEmail())
+
+        User user = userRepository.findByEmail(request.getEmail())
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Utilisateur non trouvé"));
-                
+
         String token = jwtService.generateToken(user);
-        
+
         return AuthResponseDto.builder()
                 .accessToken(token)
                 .expiresIn(3600)
@@ -67,52 +68,55 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 
     @Override
     public UserDto getCurrentUser(String email) {
-        User user = userDao.findByEmail(email)
+        User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Utilisateur non trouvé"));
         return userMapper.toDto(user);
     }
 
     @Override
     public UserDto getUserById(Long id) {
-        User user = userDao.findById(id)
+        User user = userRepository.findById(id)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Utilisateur non trouvé"));
         return userMapper.toDto(user);
     }
 
     @Override
     public UserDto updateUser(Long id, UpdateUserRequestDto request, String currentUserEmail) {
-        User userToUpdate = userDao.findById(id)
+        User userToUpdate = userRepository.findById(id)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Utilisateur non trouvé"));
-                
-        User currentUser = userDao.findByEmail(currentUserEmail)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Utilisateur courant introuvable"));
+
+        User currentUser = userRepository.findByEmail(currentUserEmail)
+                .orElseThrow(
+                        () -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Utilisateur courant introuvable"));
 
         if (!Objects.equals(userToUpdate.getId(), currentUser.getId()) && !"ADMIN".equals(currentUser.getRole())) {
-            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Accès interdit : vous ne pouvez modifier que votre propre compte");
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN,
+                    "Accès interdit : vous ne pouvez modifier que votre propre compte");
         }
 
         userMapper.updateEntity(request, userToUpdate);
-        
+
         if (request.getPassword() != null && !request.getPassword().isBlank()) {
             userToUpdate.setPassword(passwordEncoder.encode(request.getPassword()));
         }
-        
-        userDao.save(userToUpdate);
+
+        userRepository.save(userToUpdate);
         return userMapper.toDto(userToUpdate);
     }
 
     @Override
     public void deleteUser(Long id, String currentUserEmail) {
-        User userToDelete = userDao.findById(id)
+        User userToDelete = userRepository.findById(id)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Utilisateur non trouvé"));
-                
-        User currentUser = userDao.findByEmail(currentUserEmail)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Utilisateur courant introuvable"));
+
+        User currentUser = userRepository.findByEmail(currentUserEmail)
+                .orElseThrow(
+                        () -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Utilisateur courant introuvable"));
 
         if (!Objects.equals(userToDelete.getId(), currentUser.getId()) && !"ADMIN".equals(currentUser.getRole())) {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Accès interdit");
         }
-        
-        userDao.delete(userToDelete);
+
+        userRepository.delete(userToDelete);
     }
 }

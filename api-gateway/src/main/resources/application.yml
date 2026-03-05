@@ -1,0 +1,32 @@
+spring:
+  application:
+    name: api-gateway
+  cloud:
+    gateway:
+      globalcors:
+        cors-configurations:
+          '[/**]':
+            allowed-origins:
+              - "http://localhost:12020"
+              - "http://localhost:3000"
+              - "http://localhost:5173"
+            allowed-methods:
+              - GET
+              - POST
+              - PUT
+              - DELETE
+              - OPTIONS
+            allowed-headers: "*"
+            allow-credentials: true
+      routes:
+        - id: authentication-api
+          uri: http://authentication-api:8080
+          predicates:
+            - Path=/user/**, /auth/**, /user, /auth
+        - id: poster-api
+          uri: http://poster-api:8080
+          predicates:
+            - Path=/poster/**, /poster
+
+server:
+  port: 8080

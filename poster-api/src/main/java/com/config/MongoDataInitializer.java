@@ -1,7 +1,7 @@
 package com.config;
 
 import com.entity.Poster;
-import com.repository.PosterDao;
+import com.repository.PosterRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Component;
@@ -13,12 +13,12 @@ import org.springframework.stereotype.Component;
 @RequiredArgsConstructor
 public class MongoDataInitializer implements CommandLineRunner {
 
-    private final PosterDao posterDao;
+    private final PosterRepository posterRepository;
 
     @Override
     public void run(String... args) {
         // Vérifie si la collection est vide
-        if (posterDao.count() == 0) {
+        if (posterRepository.count() == 0) {
             Poster p1 = new Poster();
             p1.setTitle("Inception");
             p1.setImageUrl("https://image.tmdb.org/t/p/w500/9gk7adHYeDvHkCSEhniW0khKSBa.jpg");
@@ -27,7 +27,7 @@ public class MongoDataInitializer implements CommandLineRunner {
             p1.setPrice(19.99);
             p1.setWidth(60.0);
             p1.setHeight(90.0);
-            posterDao.save(p1);
+            posterRepository.save(p1);
 
             Poster p2 = new Poster();
             p2.setTitle("The Dark Knight");
@@ -37,7 +37,7 @@ public class MongoDataInitializer implements CommandLineRunner {
             p2.setPrice(24.99);
             p2.setWidth(60.0);
             p2.setHeight(90.0);
-            posterDao.save(p2);
+            posterRepository.save(p2);
 
             Poster p3 = new Poster();
             p3.setTitle("Interstellar");
@@ -47,7 +47,7 @@ public class MongoDataInitializer implements CommandLineRunner {
             p3.setPrice(22.99);
             p3.setWidth(40.0);
             p3.setHeight(60.0);
-            posterDao.save(p3);
+            posterRepository.save(p3);
 
             Poster p4 = new Poster();
             p4.setTitle("Pulp Fiction");
@@ -57,7 +57,7 @@ public class MongoDataInitializer implements CommandLineRunner {
             p4.setPrice(29.99);
             p4.setWidth(80.0);
             p4.setHeight(120.0);
-            posterDao.save(p4);
+            posterRepository.save(p4);
 
             Poster p5 = new Poster();
             p5.setTitle("The Matrix");
@@ -67,7 +67,7 @@ public class MongoDataInitializer implements CommandLineRunner {
             p5.setPrice(21.99);
             p5.setWidth(60.0);
             p5.setHeight(90.0);
-            posterDao.save(p5);
+            posterRepository.save(p5);
         }
     }
 }
