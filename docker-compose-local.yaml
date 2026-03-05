@@ -1,44 +1,56 @@
 services:
-  # Base distante Obiwan (Pas besoin de configurer ici, géré par le réseau de l'UBO)
-
   # ---------- API GATEWAY ----------
   api-gateway:
     image: gitlab-depinfo.univ-brest.fr:5050/e22002182/apis/api-gateway:v1.0.0
     ports:
-      - "12021:8080" # Port assigné pour la Gateway
+      - "12021:8080"
     depends_on:
-      authentication-api:
-        condition: service_started
-      poster-api:
-        condition: service_started
+      - authentication-api
+      - poster-api
 
   # ---------- AUTHENTICATION MICROSERVICE ----------
   authentication-api:
     image: gitlab-depinfo.univ-brest.fr:5050/e22002182/apis/authentication-api:v1.0.0
     ports:
-      - "12022:8080" # Port assigné par le prof pour l'API
+      - "12022:8080"
     environment:
-      spring.datasource.url: jdbc:mariadb://obiwan.univ-brest.fr:3306/e22002182_db2
+      spring.datasource.url: jdbc:mariadb://authdb:3306/e22002182_db2
       spring.datasource.username: e22002182sql
       spring.datasource.password: 20ok2UVf
       spring.jpa.hibernate.ddl-auto: update
+    depends_on:
+      - authdb
 
+  authdb:
+    image: mariadb:11.6.2-ubi9
+    restart: unless-stopped
+    ports:
+      - "12026:3306"
+    volumes:
+      - "./data_auth_local:/var/lib/mysql"
+    environment:
+      MARIADB_DATABASE: e22002182_db2
+      MARIADB_ROOT_PASSWORD: 20ok2UVf
 
   # ---------- POSTER MICROSERVICE ----------
   poster-api:
     image: gitlab-depinfo.univ-brest.fr:5050/e22002182/apis/poster-api:v1.0.0
     ports:
-      - "12024:8080" # Port assigné pour le service Poster
+      - "12024:8080"
     environment:
-      # L'API Poster se connecte directement à Obiwan
-      spring.data.mongodb.uri: mongodb://obiwan.univ-brest.fr:27017/e22002182
+      # En local, on pointe vers notre faux 'obiwan'
+      spring.data.mongodb.uri: mongodb://mongodb-local:27017/e22002182
+    depends_on:
+      - mongodb-local
 
+  # Base MongoDB locale pour simuler Obiwan
+  mongodb-local:
+    image: mongo:latest
+    ports:
+      - "27017:27017"
 
   # ---------- FRONTEND VOD-CLIENT ----------
   vod-client:
     image: gitlab-depinfo.univ-brest.fr:5050/e22002182/apis/vod-client:latest
     ports:
-      - "12020:80" # Port assigné pour NGINX (Frontend)
-    depends_on:
-      api-gateway:
-        condition: service_started
+      - "12020:80"

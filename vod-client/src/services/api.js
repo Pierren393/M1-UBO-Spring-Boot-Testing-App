@@ -1,7 +1,7 @@
 import axios from 'axios'
 
 const api = axios.create({
-  baseURL: 'http://localhost:12081',
+  baseURL: '/api', // L'API Gateway est proxied par NGINX via /api
   headers: {
     'Content-Type': 'application/json',
   },

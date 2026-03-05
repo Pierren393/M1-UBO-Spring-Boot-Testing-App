@@ -1,5 +1,4 @@
 rootProject.name = 'vod-project'
-include 'M1-UBO-Spring-Boot-Testing-App'
 include 'api-gateway'
 include 'authentication-api'
 include 'poster-api'
