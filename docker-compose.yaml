@@ -20,18 +20,32 @@ services:
       - poster_data:/data/db
 
   # ---------- API GATEWAY ----------
-  api-gateway:
+  gateway:
+    container_name: gateway
     build:
       context: .
       dockerfile: api-gateway/Dockerfile
     ports:
-      - "12021:8080"
+      - "11061:8080"
+    environment:
+      # On utilise les ports de ton groupe d'après ton tableau
+      # En local, on peut pointer vers nos services internes
+      AUTH_SERVICE_URI: "http://authentication-api:8080"
+      POSTER_SERVICE_URI: "http://poster-api:8080"
+      USER_SERVICE_URI: "http://info-tpsi.univ-brest.fr:12043"
+      MOVIE_SERVICE_URI: "http://info-tpsi.univ-brest.fr:12120"
+      RESERVATION_SERVICE_URI: "http://info-tpsi.univ-brest.fr:12091"
+      ARTIST_SERVICE_URI: "http://info-tpsi.univ-brest.fr:12121"
+      REVIEW_SERVICE_URI: "http://info-tpsi.univ-brest.fr:12042"
+      PAYMENT_SERVICE_URI: "http://info-tpsi.univ-brest.fr:12044"
+    restart: unless-stopped
     depends_on:
       - authentication-api
       - poster-api
 
   # ---------- AUTHENTICATION SERVICE ----------
   authentication-api:
+    container_name: authentication-api
     build:
       context: .
       dockerfile: authentication-api/Dockerfile
@@ -46,6 +60,7 @@ services:
 
   # ---------- POSTER SERVICE ----------
   poster-api:
+    container_name: poster-api
     build:
       context: .
       dockerfile: poster-api/Dockerfile
@@ -58,12 +73,13 @@ services:
 
   # ---------- FRONTEND ----------
   vod-client:
+    container_name: vod-client
     build:
       context: ./vod-client
     ports:
-      - "12020:80"
+      - "5173:80"
     depends_on:
-      - api-gateway
+      - gateway
 
 volumes:
   auth_data:
