@@ -15,7 +15,6 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.server.ResponseStatusException;
 
-import java.util.List;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -53,17 +52,21 @@ class AuthenticationServiceImplTest {
     @BeforeEach
     void setUp() {
         testUser = User.builder()
-                .pseudo("jdupont")
+                .id(1L)
+                .username("jdupont")
+                .email("jdupont@test.com")
                 .nom("Dupont")
                 .prenom("Jean")
                 .age(25)
                 .adresse("12 rue de Brest")
-                .motDePasse("encodedPassword")
+                .password("encodedPassword")
                 .role("USER")
                 .build();
 
         testUserDto = UserDto.builder()
-                .pseudo("jdupont")
+                .id(1L)
+                .username("jdupont")
+                .email("jdupont@test.com")
                 .nom("Dupont")
                 .prenom("Jean")
                 .age(25)
@@ -72,35 +75,34 @@ class AuthenticationServiceImplTest {
                 .build();
 
         registerRequest = RegisterRequestDto.builder()
-                .pseudo("jdupont")
+                .username("jdupont")
+                .email("jdupont@test.com")
                 .nom("Dupont")
                 .prenom("Jean")
                 .age(25)
                 .adresse("12 rue de Brest")
-                .motDePasse("password123")
+                .password("password123")
                 .build();
     }
 
     @Test
-    void register_shouldCreateUser_whenPseudoNotTaken() {
-        when(userDao.existsByPseudo("jdupont")).thenReturn(false);
+    void register_shouldCreateUser_whenEmailNotTaken() {
+        when(userDao.existsByEmail("jdupont@test.com")).thenReturn(false);
         when(userMapper.toEntity(registerRequest)).thenReturn(testUser);
         when(passwordEncoder.encode("password123")).thenReturn("encodedPassword");
         when(userDao.save(any(User.class))).thenReturn(testUser);
         when(jwtService.generateToken(testUser)).thenReturn("jwt-token");
-        when(userMapper.toDto(testUser)).thenReturn(testUserDto);
 
         AuthResponseDto response = authenticationService.register(registerRequest);
 
         assertNotNull(response);
-        assertEquals("jwt-token", response.getToken());
-        assertEquals("jdupont", response.getUser().getPseudo());
+        assertEquals("jwt-token", response.getAccessToken());
         verify(userDao).save(any(User.class));
     }
 
     @Test
-    void register_shouldThrowConflict_whenPseudoAlreadyExists() {
-        when(userDao.existsByPseudo("jdupont")).thenReturn(true);
+    void register_shouldThrowConflict_whenEmailAlreadyExists() {
+        when(userDao.existsByEmail("jdupont@test.com")).thenReturn(true);
 
         assertThrows(ResponseStatusException.class, () -> authenticationService.register(registerRequest));
         verify(userDao, never()).save(any());
@@ -109,48 +111,54 @@ class AuthenticationServiceImplTest {
     @Test
     void login_shouldReturnToken_whenCredentialsValid() {
         LoginRequestDto loginRequest = LoginRequestDto.builder()
-                .pseudo("jdupont")
-                .motDePasse("password123")
+                .email("jdupont@test.com")
+                .password("password123")
                 .build();
 
-        when(userDao.findByPseudo("jdupont")).thenReturn(Optional.of(testUser));
+        when(userDao.findByEmail("jdupont@test.com")).thenReturn(Optional.of(testUser));
         when(jwtService.generateToken(testUser)).thenReturn("jwt-token");
-        when(userMapper.toDto(testUser)).thenReturn(testUserDto);
 
         AuthResponseDto response = authenticationService.login(loginRequest);
 
         assertNotNull(response);
-        assertEquals("jwt-token", response.getToken());
+        assertEquals("jwt-token", response.getAccessToken());
         verify(authenticationManager).authenticate(any());
     }
 
     @Test
-    void getAllUsers_shouldReturnListOfUsers() {
-        when(userDao.findAll()).thenReturn(List.of(testUser));
+    void getCurrentUser_shouldReturnUser_whenExists() {
+        when(userDao.findByEmail("jdupont@test.com")).thenReturn(Optional.of(testUser));
         when(userMapper.toDto(testUser)).thenReturn(testUserDto);
 
-        List<UserDto> users = authenticationService.getAllUsers();
+        UserDto result = authenticationService.getCurrentUser("jdupont@test.com");
 
-        assertEquals(1, users.size());
-        assertEquals("jdupont", users.get(0).getPseudo());
-    }
-
-    @Test
-    void getUserByPseudo_shouldReturnUser_whenExists() {
-        when(userDao.findByPseudo("jdupont")).thenReturn(Optional.of(testUser));
-        when(userMapper.toDto(testUser)).thenReturn(testUserDto);
-
-        UserDto result = authenticationService.getUserByPseudo("jdupont");
-
-        assertEquals("jdupont", result.getPseudo());
+        assertEquals("jdupont", result.getUsername());
         assertEquals("Dupont", result.getNom());
     }
 
     @Test
-    void getUserByPseudo_shouldThrowNotFound_whenNotExists() {
-        when(userDao.findByPseudo("inconnu")).thenReturn(Optional.empty());
+    void getCurrentUser_shouldThrowNotFound_whenNotExists() {
+        when(userDao.findByEmail("inconnu@test.com")).thenReturn(Optional.empty());
 
-        assertThrows(ResponseStatusException.class, () -> authenticationService.getUserByPseudo("inconnu"));
+        assertThrows(ResponseStatusException.class, () -> authenticationService.getCurrentUser("inconnu@test.com"));
+    }
+
+    @Test
+    void getUserById_shouldReturnUser_whenExists() {
+        when(userDao.findById(1L)).thenReturn(Optional.of(testUser));
+        when(userMapper.toDto(testUser)).thenReturn(testUserDto);
+
+        UserDto result = authenticationService.getUserById(1L);
+
+        assertEquals("jdupont", result.getUsername());
+        assertEquals("Dupont", result.getNom());
+    }
+
+    @Test
+    void getUserById_shouldThrowNotFound_whenNotExists() {
+        when(userDao.findById(99L)).thenReturn(Optional.empty());
+
+        assertThrows(ResponseStatusException.class, () -> authenticationService.getUserById(99L));
     }
 
     @Test
@@ -159,11 +167,12 @@ class AuthenticationServiceImplTest {
                 .nom("NouveauNom")
                 .build();
 
-        when(userDao.findByPseudo("jdupont")).thenReturn(Optional.of(testUser));
+        when(userDao.findById(1L)).thenReturn(Optional.of(testUser));
+        when(userDao.findByEmail("jdupont@test.com")).thenReturn(Optional.of(testUser));
         when(userDao.save(any(User.class))).thenReturn(testUser);
         when(userMapper.toDto(testUser)).thenReturn(testUserDto);
 
-        UserDto result = authenticationService.updateUser("jdupont", updateRequest, "jdupont");
+        UserDto result = authenticationService.updateUser(1L, updateRequest, "jdupont@test.com");
 
         assertNotNull(result);
         verify(userMapper).updateEntity(updateRequest, testUser);
@@ -174,29 +183,30 @@ class AuthenticationServiceImplTest {
     void updateUser_shouldThrowForbidden_whenNotSelfAndNotAdmin() {
         UpdateUserRequestDto updateRequest = UpdateUserRequestDto.builder().nom("Hack").build();
 
-        when(userDao.findByPseudo("jdupont")).thenReturn(Optional.of(testUser));
+        when(userDao.findById(1L)).thenReturn(Optional.of(testUser));
         // autreUser n'est pas admin
-        User autreUser = User.builder().pseudo("autre").role("USER").build();
-        when(userDao.findByPseudo("autre")).thenReturn(Optional.of(autreUser));
+        User autreUser = User.builder().id(2L).username("autre").email("autre@test.com").role("USER").build();
+        when(userDao.findByEmail("autre@test.com")).thenReturn(Optional.of(autreUser));
 
         assertThrows(ResponseStatusException.class,
-                () -> authenticationService.updateUser("jdupont", updateRequest, "autre"));
+                () -> authenticationService.updateUser(1L, updateRequest, "autre@test.com"));
     }
 
     @Test
     void deleteUser_shouldDelete_whenUserIsSelf() {
-        when(userDao.findByPseudo("jdupont")).thenReturn(Optional.of(testUser));
+        when(userDao.findById(1L)).thenReturn(Optional.of(testUser));
+        when(userDao.findByEmail("jdupont@test.com")).thenReturn(Optional.of(testUser));
 
-        authenticationService.deleteUser("jdupont", "jdupont");
+        authenticationService.deleteUser(1L, "jdupont@test.com");
 
         verify(userDao).delete(testUser);
     }
 
     @Test
     void deleteUser_shouldThrowNotFound_whenUserNotExists() {
-        when(userDao.findByPseudo("inconnu")).thenReturn(Optional.empty());
+        when(userDao.findById(99L)).thenReturn(Optional.empty());
 
         assertThrows(ResponseStatusException.class,
-                () -> authenticationService.deleteUser("inconnu", "admin"));
+                () -> authenticationService.deleteUser(99L, "admin@test.com"));
     }
 }

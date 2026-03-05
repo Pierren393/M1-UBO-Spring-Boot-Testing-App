@@ -46,9 +46,9 @@ public class SecurityConfig {
                 .csrf(csrf -> csrf.disable())
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers(HttpMethod.POST, "/user").permitAll()
-                        .requestMatchers(HttpMethod.POST, "/user/login").permitAll()
-                        .requestMatchers(HttpMethod.GET, "/user/{pseudo}").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/auth/register").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/auth/login").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/users/{id}").permitAll()
                         .requestMatchers(HttpMethod.GET, "/poster", "/poster/**").permitAll()
                         .requestMatchers("/swagger-ui/**", "/v3/api-docs/**", "/swagger-ui.html").permitAll()
                         .requestMatchers(HttpMethod.GET, "/user").authenticated()
@@ -57,8 +57,7 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.POST, "/poster").authenticated()
                         .requestMatchers(HttpMethod.PUT, "/poster/**").authenticated()
                         .requestMatchers(HttpMethod.DELETE, "/poster/**").authenticated()
-                        .anyRequest().authenticated()
-                )
+                        .anyRequest().authenticated())
                 .authenticationProvider(authenticationProvider())
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
         return http.build();

@@ -11,6 +11,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 
 import java.util.Collection;
 import java.util.List;
+import java.time.LocalDateTime;
 
 /**
  * Entité représentant un utilisateur de l'application.
@@ -46,6 +47,16 @@ public class User implements UserDetails {
     @Builder.Default
     private String role = "USER";
 
+    @Column(name = "created_at", updatable = false)
+    private LocalDateTime createdAt;
+
+    @PrePersist
+    protected void onCreate() {
+        if (createdAt == null) {
+            createdAt = LocalDateTime.now();
+        }
+    }
+
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         return List.of(new SimpleGrantedAuthority("ROLE_" + role));
@@ -58,15 +69,27 @@ public class User implements UserDetails {
 
     @Override
     public String getUsername() {
-        return username; // Spring security se base sur le Username (qui peut représenter l'email dans l'auth globale ou le vrai username)
+        return username; // Spring security se base sur le Username (qui peut représenter l'email dans
+                         // l'auth globale ou le vrai username)
     }
 
     @Override
-    public boolean isAccountNonExpired() { return true; }
+    public boolean isAccountNonExpired() {
+        return true;
+    }
+
     @Override
-    public boolean isAccountNonLocked() { return true; }
+    public boolean isAccountNonLocked() {
+        return true;
+    }
+
     @Override
-    public boolean isCredentialsNonExpired() { return true; }
+    public boolean isCredentialsNonExpired() {
+        return true;
+    }
+
     @Override
-    public boolean isEnabled() { return true; }
+    public boolean isEnabled() {
+        return true;
+    }
 }

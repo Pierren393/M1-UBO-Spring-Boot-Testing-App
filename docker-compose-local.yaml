@@ -13,24 +13,12 @@ services:
     image: gitlab-depinfo.univ-brest.fr:5050/e22002182/apis/authentication-api:v1.0.0
     ports:
       - "12022:8080"
+    restart: on-failure
     environment:
-      spring.datasource.url: jdbc:mariadb://authdb:3306/e22002182_db2
+      spring.datasource.url: jdbc:mariadb://obiwan.univ-brest.fr:3306/e22002182_db2
       spring.datasource.username: e22002182sql
       spring.datasource.password: 20ok2UVf
       spring.jpa.hibernate.ddl-auto: update
-    depends_on:
-      - authdb
-
-  authdb:
-    image: mariadb:11.6.2-ubi9
-    restart: unless-stopped
-    ports:
-      - "12026:3306"
-    volumes:
-      - "./data_auth_local:/var/lib/mysql"
-    environment:
-      MARIADB_DATABASE: e22002182_db2
-      MARIADB_ROOT_PASSWORD: 20ok2UVf
 
   # ---------- POSTER MICROSERVICE ----------
   poster-api:
@@ -54,3 +42,12 @@ services:
     image: gitlab-depinfo.univ-brest.fr:5050/e22002182/apis/vod-client:latest
     ports:
       - "12020:80"
+    restart: on-failure
+    depends_on:
+      - api-gateway
+
+networks:
+  default:
+    ipam:
+      config:
+        - subnet: 10.5.0.0/16

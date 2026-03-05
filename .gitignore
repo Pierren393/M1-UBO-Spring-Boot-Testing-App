@@ -69,3 +69,9 @@ secrets.yml
 .gradletasknamecache
 
 data/
+
+# Large archives
+*.tar.gz
+
+# Logs
+*.log
