@@ -43,6 +43,8 @@ services:
     depends_on:
       - authentication-api
       - poster-api
+    extra_hosts:
+      - "info-tpsi.univ-brest.fr:172.18.4.22"
 
   # ---------- AUTHENTICATION SERVICE ----------
   authentication-api:
