@@ -53,6 +53,10 @@ spring:
           uri: ${PAYMENT_SERVICE_URI:http://payment-service:8080}
           predicates:
             - Path=/payments/**
+        - id: scrapping-service
+          uri: ${SCRAPPING_SERVICE_URI:http://scrapping-service:8080}
+          predicates:
+            - Path=/scrapping/**
 
 server:
   port: 8080

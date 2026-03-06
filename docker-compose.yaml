@@ -32,12 +32,13 @@ services:
       # En local, on peut pointer vers nos services internes
       AUTH_SERVICE_URI: "http://authentication-api:8080"
       POSTER_SERVICE_URI: "http://poster-api:8080"
-      USER_SERVICE_URI: "http://info-tpsi.univ-brest.fr:12043"
-      MOVIE_SERVICE_URI: "http://info-tpsi.univ-brest.fr:12120"
+      USER_SERVICE_URI: "http://info-tpsi.univ-brest.fr:12063"
+      MOVIE_SERVICE_URI: "http://info-tpsi.univ-brest.fr:12093"
       RESERVATION_SERVICE_URI: "http://info-tpsi.univ-brest.fr:12091"
       ARTIST_SERVICE_URI: "http://info-tpsi.univ-brest.fr:12121"
-      REVIEW_SERVICE_URI: "http://info-tpsi.univ-brest.fr:12042"
+      REVIEW_SERVICE_URI: "http://info-tpsi.univ-brest.fr:12065"
       PAYMENT_SERVICE_URI: "http://info-tpsi.univ-brest.fr:12044"
+      SCRAPPING_SERVICE_URI: "http://info-tpsi.univ-brest.fr:12062"
     restart: unless-stopped
     depends_on:
       - authentication-api
