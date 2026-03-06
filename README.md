@@ -2,145 +2,88 @@
 
 ## Description
 
-API REST pour la gestion des utilisateurs (authentification JWT) et des posters de films.  
+Système distribué en microservices pour la gestion des utilisateurs (authentification JWT) et des posters de films.  
 Projet réalisé dans le cadre du Master 1 UBO.
 
-## 🛠️ Technologies
+## 🛠️ Architecture Technologique
 
-- **Backend** : Spring Boot 3, Spring Security, JWT, JPA/Hibernate, MySQL, Swagger/OpenAPI
-- **Frontend** : Vue.js 3, Axios, Vue Router
-- **Tests** : JUnit 5, Mockito
-- **Déploiement** : Docker, Docker Compose
+- **API Gateway** : Spring Cloud Gateway (Port 12021)
+- **Authentication API** : Spring Boot + MariaDB (Port 12022)
+- **Poster API** : Spring Boot + MongoDB (Port 12024)
+- **Frontend** : Vue.js 3 (Port 12020)
+- **Bases de données** : 
+  - MariaDB : Hébergée sur `obiwan.univ-brest.fr`
+  - MongoDB : Conteneur local
 
-## 🚀 Lancement
+---
 
-### Avec Docker (recommandé)
+## 🚀 Lancement sur les PC de la Faculté (Sans VPN)
 
-```bash
-docker-compose up --build
-```
+Sur les PC de l'université, vous êtes déjà sur le réseau interne. Utilisez le fichier compose standard.
 
-- Backend : http://localhost:8080
-- Frontend : http://localhost:5173
-- Swagger UI : http://localhost:8080/swagger-ui.html
+1. **Cloner le projet et se placer sur la branche `docker-local`** :
+   ```bash
+   git clone <url-du-repo>
+   cd M1-UBO-Spring-Boot-Testing-App
+   git checkout docker-local
+   ```
 
-### En local
+2. **Lancer l'application avec Docker Compose** :
+   ```bash
+   docker compose up --build
+   ```
 
-#### Backend
+---
 
-```bash
-cd M1-UBO-Spring-Boot-Testing-App
-./gradlew bootRun
-```
+## 🏠 Lancement en Local (Avec VPN)
 
-#### Frontend (dans un autre terminal)
-
-```bash
-cd vod-client
-# npm install
-npm run dev
-```
-
-### Déploiement sur le serveur (info-tpsi)
-
-#### 1. Générer l'image Docker
+Si vous travaillez depuis chez vous avec le VPN de l'université, un conflit d'adresse IP Docker peut survenir. Utilisez la configuration dédiée :
 
 ```bash
-cd M1-UBO-Spring-Boot-Testing-App
-./gradlew bootBuildImage
+docker compose -f docker-compose-local.yaml up --build
 ```
 
-#### 2. Se connecter au registry GitLab
+---
 
-```bash
-docker login gitlab-depinfo.univ-brest.fr:5050
-```
+## 🔗 Accès aux services
 
-#### 3. Pousser l'image Docker
+Une fois l'application lancée, les services sont accessibles via la Gateway :
 
-```bash
-docker image push gitlab-depinfo.univ-brest.fr:5050/e22002182/apis/authentication-api:v1.0.0
-```
+- **Frontend** : [http://localhost:12020](http://localhost:12020)
+- **Swagger (Auth)** : [http://localhost:12021/swagger-ui/index.html?configUrl=/v3/api-docs/user/swagger-config](http://localhost:12021/swagger-ui/index.html?configUrl=/v3/api-docs/user/swagger-config)
+- **Swagger (Poster)** : [http://localhost:12021/swagger-ui/index.html?configUrl=/v3/api-docs/poster/swagger-config](http://localhost:12021/swagger-ui/index.html?configUrl=/v3/api-docs/poster/swagger-config)
 
-#### 4. Se connecter au serveur et lancer
-
-```bash
-ssh e22002182@info-tpsi.univ-brest.fr
-docker login gitlab-depinfo.univ-brest.fr:5050
-API_PORT=<votre_port> docker-compose up -d
-```
-
-Remplacez `<votre_port>` par un port de votre plage assignée.
-
-
-## 📚 API Endpoints
-
-### Utilisateurs (`/user`)
-
-| Méthode | Endpoint | Description | Auth |
-|---------|----------|-------------|------|
-| `POST` | `/user` | Créer un utilisateur | ❌ |
-| `POST` | `/user/login` | Connexion | ❌ |
-| `GET` | `/user` | Lister tous les utilisateurs | 🔒 Admin |
-| `GET` | `/user/{pseudo}` | Récupérer un utilisateur | ❌ |
-| `PUT` | `/user/{pseudo}` | Modifier un utilisateur | 🔒 Self/Admin |
-| `DELETE` | `/user/{pseudo}` | Supprimer un utilisateur | 🔒 Self/Admin |
-
-### Posters (`/poster`)
-
-| Méthode | Endpoint | Description | Auth |
-|---------|----------|-------------|------|
-| `GET` | `/poster` | Lister tous les posters | ❌ |
-| `GET` | `/poster/{id}` | Récupérer un poster | ❌ |
-| `POST` | `/poster` | Créer un poster | 🔒 |
-| `PUT` | `/poster/{id}` | Modifier un poster | 🔒 |
-| `DELETE` | `/poster/{id}` | Supprimer un poster | 🔒 |
-
-## 🔐 Authentification
-
-L'API utilise des **tokens JWT** (Bearer).  
-Après inscription (`POST /user`) ou connexion (`POST /user/login`), un token est retourné.  
-Ce token doit être inclus dans le header `Authorization: Bearer <token>` pour les endpoints protégés.
+---
 
 ## 🧪 Tests
 
+Pour lancer la suite de tests unitaires et d'intégration :
+
 ```bash
-cd M1-UBO-Spring-Boot-Testing-App
-./gradlew test
+# Tests Auth API
+cd authentication-api && ./gradlew test
+
+# Tests Poster API
+cd ../poster-api && ./gradlew test
 ```
 
 ## 📦 Structure du projet
 
 ```
-API/
-├── M1-UBO-Spring-Boot-Testing-App/     # Backend Spring Boot
-│   └── src/main/java/com/music/music/dao/
-│       ├── config/                      # SecurityConfig, JwtFilter
-│       ├── controller/                  # UserController, PosterController
-│       ├── dto/                         # DTOs (UserDto, PosterDto, etc.)
-│       ├── entity/                      # Entités JPA (User, Poster)
-│       ├── mapper/                      # Mappers (UserMapper, PosterMapper)
-│       ├── repository/                  # Repositories JPA
-│       └── service/                     # Services (interface + impl)
-├── frontend/                            # Frontend Vue.js
-│   └── src/
-│       ├── views/                       # Login, Register, Profile, Posters
-│       └── services/                    # API Axios
-├── docker-compose.yml                   # Orchestration Docker
-├── Dockerfile                           # Image backend
-└── README.md
+.
+├── api-gateway/          # Routage et point d'entrée unique
+├── authentication-api/   # Gestion des utilisateurs (MariaDB)
+├── poster-api/           # Gestion des posters (MongoDB)
+├── vod-client/           # Interface utilisateur (Vue.js)
+├── docker-compose.yaml   # Config pour la Fac
+└── docker-compose-local.yaml # Config pour le Local (VPN)
 ```
 
-## 👥 Données de test
+## 👥 Données de test (SQL)
 
-Le fichier `data.sql` peuple automatiquement la base avec :
-- 3 utilisateurs (admin/jdupont/mmartin, mot de passe : `password123`)
-- 5 posters de films
+Le système initialise automatiquement :
+- **admin@test.com** / `password123` (Admin)
+- **jdupont@test.com** / `password123` (User)
 
-## 📖 Swagger
-
-Documentation interactive disponible sur : http://localhost:8080/swagger-ui.html
-
-## Auteur
-
+---
 Pierre Nicolas - Master 1 UBO
