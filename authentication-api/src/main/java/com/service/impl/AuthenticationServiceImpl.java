@@ -1,5 +1,6 @@
 package com.service.impl;
 
+import jakarta.annotation.PostConstruct;
 import lombok.extern.slf4j.Slf4j;
 
 import com.repository.UserRepository;
@@ -31,6 +32,20 @@ public class AuthenticationServiceImpl implements AuthenticationService {
     private final PasswordEncoder passwordEncoder;
     private final JwtService jwtService;
     private final AuthenticationManager authenticationManager;
+
+    @PostConstruct
+    public void checkDatabase() {
+        try {
+            long count = userRepository.count();
+            log.info(">>>> Vérification base de données : {} utilisateurs trouvés.", count);
+            if (count > 0) {
+                userRepository.findAll()
+                        .forEach(u -> log.info(">>>> Utilisateur en base : {} ({})", u.getUsername(), u.getEmail()));
+            }
+        } catch (Exception e) {
+            log.error(">>>> ERREUR de connexion à la base de données : {}", e.getMessage());
+        }
+    }
 
     @Override
     public AuthResponseDto register(RegisterRequestDto request) {
