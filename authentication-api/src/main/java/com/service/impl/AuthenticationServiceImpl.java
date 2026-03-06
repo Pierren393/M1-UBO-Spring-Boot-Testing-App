@@ -6,7 +6,6 @@ import com.mapper.UserMapper;
 import com.repository.UserRepository;
 import com.service.AuthenticationService;
 import com.service.JwtService;
-import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -31,35 +30,6 @@ public class AuthenticationServiceImpl implements AuthenticationService {
     private final PasswordEncoder passwordEncoder;
     private final JwtService jwtService;
     private final AuthenticationManager authenticationManager;
-
-    @PostConstruct
-    public void initAdmin() {
-        String adminEmail = "admin@univ-brest.fr";
-        log.info(">>>> INITIALISATION : Vérification de l'utilisateur admin '{}'", adminEmail);
-        try {
-            User admin = userRepository.findByEmail(adminEmail).orElse(null);
-            if (admin == null) {
-                log.info(">>>> INITIALISATION : Admin non trouvé, création...");
-                admin = User.builder()
-                        .email(adminEmail)
-                        .username("admin")
-                        .nom("Admin")
-                        .prenom("Super")
-                        .password(passwordEncoder.encode("password123"))
-                        .role("ADMIN")
-                        .build();
-                userRepository.save(admin);
-                log.info(">>>> INITIALISATION : Admin créé avec succès.");
-            } else {
-                log.info(">>>> INITIALISATION : Admin trouvé (ID={}). Mise à jour du mot de passe...", admin.getId());
-                admin.setPassword(passwordEncoder.encode("password123"));
-                userRepository.save(admin);
-                log.info(">>>> INITIALISATION : Mot de passe admin mis à jour.");
-            }
-        } catch (Exception e) {
-            log.error(">>>> INITIALISATION : Erreur lors de la vérification de l'admin: {}", e.getMessage());
-        }
-    }
 
     @Override
     public AuthResponseDto register(RegisterRequestDto request) {

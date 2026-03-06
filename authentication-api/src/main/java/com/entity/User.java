@@ -58,15 +58,26 @@ public class User implements UserDetails {
 
     @Override
     public String getUsername() {
-        return username; // Spring security se base sur le Username (qui peut représenter l'email dans l'auth globale ou le vrai username)
+        return email; // On utilise l'email comme identifiant unique pour Spring Security et JWT
     }
 
     @Override
-    public boolean isAccountNonExpired() { return true; }
+    public boolean isAccountNonExpired() {
+        return true;
+    }
+
     @Override
-    public boolean isAccountNonLocked() { return true; }
+    public boolean isAccountNonLocked() {
+        return true;
+    }
+
     @Override
-    public boolean isCredentialsNonExpired() { return true; }
+    public boolean isCredentialsNonExpired() {
+        return true;
+    }
+
     @Override
-    public boolean isEnabled() { return true; }
+    public boolean isEnabled() {
+        return true;
+    }
 }
