@@ -1,8 +1,7 @@
-FROM gradle:8.5-jdk17 AS build
+FROM gradle:8.12-jdk17 AS build
 WORKDIR /app
 COPY . .
-RUN chmod +x gradlew
-RUN ./gradlew :authentication-api:bootJar -x test
+RUN gradle :authentication-api:bootJar -x test
 
 FROM eclipse-temurin:17-jre-jammy
 WORKDIR /app
