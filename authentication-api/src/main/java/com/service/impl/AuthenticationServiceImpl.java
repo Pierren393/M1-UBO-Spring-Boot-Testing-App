@@ -1,15 +1,13 @@
 package com.service.impl;
 
-import jakarta.annotation.PostConstruct;
-import lombok.extern.slf4j.Slf4j;
-
-import com.repository.UserRepository;
 import com.dto.*;
 import com.entity.User;
 import com.mapper.UserMapper;
+import com.repository.UserRepository;
 import com.service.AuthenticationService;
 import com.service.JwtService;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -24,7 +22,6 @@ import java.util.Objects;
  */
 @Service
 @RequiredArgsConstructor
-@Slf4j
 public class AuthenticationServiceImpl implements AuthenticationService {
 
     private final UserRepository userRepository;
@@ -32,20 +29,6 @@ public class AuthenticationServiceImpl implements AuthenticationService {
     private final PasswordEncoder passwordEncoder;
     private final JwtService jwtService;
     private final AuthenticationManager authenticationManager;
-
-    @PostConstruct
-    public void checkDatabase() {
-        try {
-            long count = userRepository.count();
-            log.info(">>>> Vérification base de données : {} utilisateurs trouvés.", count);
-            if (count > 0) {
-                userRepository.findAll()
-                        .forEach(u -> log.info(">>>> Utilisateur en base : {} ({})", u.getUsername(), u.getEmail()));
-            }
-        } catch (Exception e) {
-            log.error(">>>> ERREUR de connexion à la base de données : {}", e.getMessage());
-        }
-    }
 
     @Override
     public AuthResponseDto register(RegisterRequestDto request) {
@@ -69,7 +52,6 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 
     @Override
     public AuthResponseDto login(LoginRequestDto request) {
-        log.info("Tentative de connexion pour l'email: {}", request.getEmail());
         authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(request.getEmail(), request.getPassword()));
 

@@ -3,7 +3,7 @@
 -- Mot de passe pour tous : password123
 -- Hash BCrypt : $2a$10$N9qo8uLOickgx2ZMRZoMyeIjZAgcfl7p92ldGxad68LJZdL17lhWy
 
-INSERT IGNORE INTO users (email, username, nom, prenom, age, adresse, password, role) VALUES
+REPLACE INTO users (email, username, nom, prenom, age, adresse, password, role) VALUES
 ('admin@univ-brest.fr', 'admin', 'Admin', 'Super', 30, '1 rue de Brest, 29200 Brest', '$2a$10$N9qo8uLOickgx2ZMRZoMyeIjZAgcfl7p92ldGxad68LJZdL17lhWy', 'ADMIN'),
 ('pierre_ubo@univ-brest.fr', 'pierre_ubo', 'Le Goff', 'Pierre', 21, 'Faculté des Sciences, Brest', '$2a$10$N9qo8uLOickgx2ZMRZoMyeIjZAgcfl7p92ldGxad68LJZdL17lhWy', 'ADMIN'),
 ('jean.dupont@example.com', 'jdupont', 'Dupont', 'Jean', 25, '12 avenue de la Liberté, 29200 Brest', '$2a$10$N9qo8uLOickgx2ZMRZoMyeIjZAgcfl7p92ldGxad68LJZdL17lhWy', 'USER'),
