@@ -15,6 +15,10 @@ export const posterService = {
   async getPosters() {
     const response = await api.get('/poster')
     return response.data
+  },
+  async getPosterById(id) {
+    const response = await api.get(`/poster/${id}`)
+    return response.data
   }
 }
 

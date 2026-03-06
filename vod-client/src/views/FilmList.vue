@@ -38,20 +38,29 @@
 
 <script setup>
 import { ref, onMounted } from 'vue'
-import { filmService } from '../services/filmService'
+import { posterService } from '../services/filmService'
 
 const films = ref([])
 const loading = ref(true)
 const error = ref(null)
 
 const fetchData = async () => {
-  loading.ref = true
+  loading.value = true
   error.value = null
   try {
-    films.value = await filmService.getFilms()
+    const data = await posterService.getPosters()
+    // Mapping pour compatibilité avec le template existant
+    films.value = data.map(p => ({
+      id: p.id,
+      title: p.titreFilm,
+      posterUrl: p.imageUrl,
+      releaseYear: p.anneeSortie,
+      genre: p.genres ? p.genres[0] : 'N/A',
+      rating: p.price ? p.price + '€' : 'Gratuit'
+    }))
   } catch (err) {
     console.error(err)
-    error.value = "Impossible de charger les films. L'API Gateway ne répond pas ou le VPN est déconnecté."
+    error.value = "Impossible de charger les posters depuis MongoDB. Vérifiez que poster-api est en ligne."
   } finally {
     loading.value = false
   }

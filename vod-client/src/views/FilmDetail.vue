@@ -29,7 +29,7 @@
 <script setup>
 import { ref, onMounted } from 'vue'
 import { useRoute } from 'vue-router'
-import { filmService } from '../services/filmService'
+import { posterService } from '../services/filmService'
 
 const route = useRoute()
 const film = ref(null)
@@ -38,9 +38,16 @@ const error = ref(null)
 
 const fetchData = async () => {
   try {
-    film.value = await filmService.getFilmById(route.params.id)
+    const data = await posterService.getPosterById(route.params.id)
+    // Mapping pour compatibilité template
+    film.value = {
+      ...data,
+      title: data.titreFilm,
+      posterUrl: data.imageUrl,
+      year: data.anneeSortie
+    }
   } catch (err) {
-    error.value = "Erreur lors du chargement des détails."
+    error.value = "Erreur lors du chargement des détails du poster."
   } finally {
     loading.value = false
   }
