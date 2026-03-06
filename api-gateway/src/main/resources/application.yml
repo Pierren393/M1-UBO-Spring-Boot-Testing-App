@@ -6,12 +6,7 @@ spring:
       globalcors:
         cors-configurations:
           '[/**]':
-            allowed-origins:
-              - "http://localhost:12020"
-              - "http://localhost:3000"
-              - "http://localhost:5173"
-              - "http://info-tpsi.univ-brest.fr:12020"
-              - "http://info-tpsi.univ-brest.fr:5173"
+            allowed-origins: "*"
             allowed-methods:
               - GET
               - POST
