@@ -53,25 +53,11 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 
     @Override
     public AuthResponseDto login(LoginRequestDto request) {
-        log.info(">>>> TENTATIVE DE CONNEXION : email='{}'", request.getEmail());
-
-        User user = userRepository.findByEmail(request.getEmail())
-                .orElse(null);
-
-        if (user == null) {
-            log.error(">>>> UTILISATEUR NON TROUVÉ en base pour l'email: '{}'", request.getEmail());
-            // On laisse l'auth manager lancer l'exception pour la sécurité
-        } else {
-            log.info(">>>> UTILISATEUR TROUVÉ : ID={}, pseudo={}, role={}", user.getId(), user.getUsername(),
-                    user.getRole());
-        }
-
         authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(request.getEmail(), request.getPassword()));
 
-        if (user == null) { // Devrait être impossible car l'auth manager a réussi ou lancé une exception
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Utilisateur non trouvé");
-        }
+        User user = userRepository.findByEmail(request.getEmail())
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Utilisateur non trouvé"));
 
         String token = jwtService.generateToken(user);
 
