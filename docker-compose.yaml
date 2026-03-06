@@ -26,7 +26,7 @@ services:
       context: .
       dockerfile: api-gateway/Dockerfile
     ports:
-      - "11061:8080"
+      - "12021:8080"
     environment:
       # On utilise les ports de ton groupe d'après ton tableau
       # En local, on peut pointer vers nos services internes
@@ -77,7 +77,7 @@ services:
     build:
       context: ./vod-client
     ports:
-      - "5173:80"
+      - "12020:80"
     depends_on:
       - gateway
 
