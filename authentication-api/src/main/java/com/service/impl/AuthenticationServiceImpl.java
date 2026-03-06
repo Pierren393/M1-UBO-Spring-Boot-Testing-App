@@ -40,8 +40,6 @@ public class AuthenticationServiceImpl implements AuthenticationService {
         user.setPassword(passwordEncoder.encode(request.getPassword()));
         userRepository.save(user);
 
-        // On suppose que votre jwtService utilise getUsername() (Spring Security) qui
-        // renvoie notre email configuré
         String token = jwtService.generateToken(user);
 
         return AuthResponseDto.builder()
@@ -53,11 +51,34 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 
     @Override
     public AuthResponseDto login(LoginRequestDto request) {
-        authenticationManager.authenticate(
-                new UsernamePasswordAuthenticationToken(request.getEmail(), request.getPassword()));
+        log.info(">>>> [LOGIN DEBUG] Tentative de connexion pour : {}", request.getEmail());
 
         User user = userRepository.findByEmail(request.getEmail())
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Utilisateur non trouvé"));
+                .orElse(null);
+
+        if (user == null) {
+            log.error(">>>> [LOGIN DEBUG] Utilisateur introuvable pour email : {}", request.getEmail());
+        } else {
+            log.info(">>>> [LOGIN DEBUG] Utilisateur trouvé (ID={}). Test manuel du mot de passe...", user.getId());
+            boolean match = passwordEncoder.matches(request.getPassword(), user.getPassword());
+            log.info(">>>> [LOGIN DEBUG] Password match manual result : {}", match);
+            if (!match) {
+                log.error(">>>> [LOGIN DEBUG] Erreur : Le mot de passe envoyé ne correspond pas au hash en base.");
+            }
+        }
+
+        try {
+            authenticationManager.authenticate(
+                    new UsernamePasswordAuthenticationToken(request.getEmail(), request.getPassword()));
+            log.info(">>>> [LOGIN DEBUG] AuthenticationManager : SUCCÈS");
+        } catch (Exception e) {
+            log.error(">>>> [LOGIN DEBUG] AuthenticationManager : ÉCHEC : {}", e.getMessage());
+            throw e;
+        }
+
+        if (user == null) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Utilisateur non trouvé");
+        }
 
         String token = jwtService.generateToken(user);
 
