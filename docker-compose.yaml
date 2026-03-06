@@ -1,16 +1,4 @@
 services:
-  # ---------- DATABASES (LOCAL) ----------
-  auth-db:
-    image: mariadb:11.6
-    restart: unless-stopped
-    ports:
-      - "3306:3306"
-    environment:
-      MARIADB_DATABASE: e22002182_db2
-      MARIADB_ROOT_PASSWORD: root
-    volumes:
-      - auth_data:/var/lib/mysql
-
   poster-db:
     image: mongo:latest
     restart: unless-stopped
@@ -32,13 +20,13 @@ services:
       # En local, on peut pointer vers nos services internes
       AUTH_SERVICE_URI: "http://authentication-api:8080"
       POSTER_SERVICE_URI: "http://poster-api:8080"
-      USER_SERVICE_URI: "http://172.18.4.22:12063"
-      MOVIE_SERVICE_URI: "http://172.18.4.22:12093"
-      RESERVATION_SERVICE_URI: "http://172.18.4.22:12091"
-      ARTIST_SERVICE_URI: "http://172.18.4.22:12121"
-      REVIEW_SERVICE_URI: "http://172.18.4.22:12065"
-      PAYMENT_SERVICE_URI: "http://172.18.4.22:12044"
-      SCRAPPING_SERVICE_URI: "http://172.18.4.22:12062"
+      USER_SERVICE_URI: "http://info-tpsi.univ-brest.fr:12063"
+      MOVIE_SERVICE_URI: "http://info-tpsi.univ-brest.fr:12093"
+      RESERVATION_SERVICE_URI: "http://info-tpsi.univ-brest.fr:12091"
+      ARTIST_SERVICE_URI: "http://info-tpsi.univ-brest.fr:12121"
+      REVIEW_SERVICE_URI: "http://info-tpsi.univ-brest.fr:12065"
+      PAYMENT_SERVICE_URI: "http://info-tpsi.univ-brest.fr:12044"
+      SCRAPPING_SERVICE_URI: "http://info-tpsi.univ-brest.fr:12062"
     restart: unless-stopped
     depends_on:
       - authentication-api
@@ -54,12 +42,10 @@ services:
       dockerfile: authentication-api/Dockerfile
     ports:
       - "12022:8080"
-    depends_on:
-      - auth-db
     environment:
-      spring.datasource.url: jdbc:mariadb://auth-db:3306/e22002182_db2
-      spring.datasource.username: root
-      spring.datasource.password: root
+      spring.datasource.url: jdbc:mariadb://obiwan.univ-brest.fr:3306/e22002182_db2
+      spring.datasource.username: e22002182sql
+      spring.datasource.password: 20ok2UVf
 
   # ---------- POSTER SERVICE ----------
   poster-api:
@@ -85,5 +71,4 @@ services:
       - gateway
 
 volumes:
-  auth_data:
   poster_data:
