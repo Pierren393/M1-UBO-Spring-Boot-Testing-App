@@ -19,6 +19,8 @@ services:
     depends_on:
       - authentication-api
       - poster-api
+      - payment-api
+      - reservation-api
     extra_hosts:
       - "info-tpsi.univ-brest.fr:172.18.4.22"
 
@@ -29,9 +31,9 @@ services:
     ports:
       - "12022:8080"
     environment:
-      spring.datasource.url: jdbc:mariadb://obiwan.univ-brest.fr:3306/e22002182_db2
-      spring.datasource.username: e22002182sql
-      spring.datasource.password: 20ok2UVf
+      spring.datasource.url: ${SPRING_DATASOURCE_URL:jdbc:mariadb://obiwan.univ-brest.fr:3306/e22002182_db2}
+      spring.datasource.username: ${SPRING_DATASOURCE_USERNAME:e22002182sql}
+      spring.datasource.password: ${SPRING_DATASOURCE_PASSWORD:20ok2UVf}
     restart: unless-stopped
 
   # ---------- POSTER SERVICE ----------
@@ -41,7 +43,31 @@ services:
     ports:
       - "12024:8080"
     environment:
-      spring.data.mongodb.uri: mongodb://obiwan.univ-brest.fr:27017/e22002182
+      spring.data.mongodb.uri: ${MONGODB_URI:mongodb://obiwan.univ-brest.fr:27017/e22002182}
+    restart: unless-stopped
+
+  # ---------- PAYMENT SERVICE ----------
+  payment-api:
+    container_name: payment-api-prod
+    image: gitlab-depinfo.univ-brest.fr:5050/e22002182/apis/payment-api:v1.0.0
+    ports:
+      - "12025:8080"
+    environment:
+      spring.datasource.url: ${SPRING_DATASOURCE_URL:jdbc:mariadb://obiwan.univ-brest.fr:3306/e22002182_db2}
+      spring.datasource.username: ${SPRING_DATASOURCE_USERNAME:e22002182sql}
+      spring.datasource.password: ${SPRING_DATASOURCE_PASSWORD:20ok2UVf}
+    restart: unless-stopped
+
+  # ---------- RESERVATION SERVICE ----------
+  reservation-api:
+    container_name: reservation-api-prod
+    image: gitlab-depinfo.univ-brest.fr:5050/e22002182/apis/reservation-api:v1.0.0
+    ports:
+      - "12026:8080"
+    environment:
+      spring.datasource.url: ${SPRING_DATASOURCE_URL:jdbc:mariadb://obiwan.univ-brest.fr:3306/e22002182_db2}
+      spring.datasource.username: ${SPRING_DATASOURCE_USERNAME:e22002182sql}
+      spring.datasource.password: ${SPRING_DATASOURCE_PASSWORD:20ok2UVf}
     restart: unless-stopped
 
   # ---------- FRONTEND ----------

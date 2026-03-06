@@ -23,7 +23,17 @@ echo "📦 Building Poster API..."
 docker build -t $REGISTRY/$USER/$PROJECT/poster-api:$TAG -f poster-api/Dockerfile .
 docker push $REGISTRY/$USER/$PROJECT/poster-api:$TAG
 
-# 4. Frontend (VOD Client)
+# 4. Payment API
+echo "📦 Building Payment API..."
+docker build -t $REGISTRY/$USER/$PROJECT/payment-api:$TAG -f payment-api/Dockerfile .
+docker push $REGISTRY/$USER/$PROJECT/payment-api:$TAG
+
+# 5. Reservation API
+echo "📦 Building Reservation API..."
+docker build -t $REGISTRY/$USER/$PROJECT/reservation-api:$TAG -f reservation-api/Dockerfile .
+docker push $REGISTRY/$USER/$PROJECT/reservation-api:$TAG
+
+# 6. Frontend (VOD Client)
 echo "📦 Building Frontend..."
 docker build -t $REGISTRY/$USER/$PROJECT/vod-client:$TAG -f vod-client/Dockerfile ./vod-client
 docker push $REGISTRY/$USER/$PROJECT/vod-client:$TAG
