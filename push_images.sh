@@ -29,3 +29,8 @@ docker build -t $REGISTRY/$USER/$PROJECT/vod-client:$TAG -f vod-client/Dockerfil
 docker push $REGISTRY/$USER/$PROJECT/vod-client:$TAG
 
 echo "✅ Terminé ! Vos images sont en ligne."
+
+# 5. Nettoyage (Optionnel)
+# Supprime les anciennes versions d'images devenues orphelines (dangling) pour libérer de l'espace
+echo "🧹 Nettoyage des anciennes images locales..."
+docker image prune -f
