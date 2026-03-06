@@ -1,0 +1,55 @@
+services:
+  # ---------- API GATEWAY ----------
+  gateway:
+    container_name: gateway-prod
+    image: gitlab-depinfo.univ-brest.fr:5050/e22002182/apis/api-gateway:v1.0.0
+    ports:
+      - "12021:8080"
+    environment:
+      AUTH_SERVICE_URI: "http://authentication-api:8080"
+      POSTER_SERVICE_URI: "http://poster-api:8080"
+      USER_SERVICE_URI: "http://info-tpsi.univ-brest.fr:12063"
+      MOVIE_SERVICE_URI: "http://info-tpsi.univ-brest.fr:12093"
+      RESERVATION_SERVICE_URI: "http://info-tpsi.univ-brest.fr:12091"
+      ARTIST_SERVICE_URI: "http://info-tpsi.univ-brest.fr:12121"
+      REVIEW_SERVICE_URI: "http://info-tpsi.univ-brest.fr:12065"
+      PAYMENT_SERVICE_URI: "http://info-tpsi.univ-brest.fr:12044"
+      SCRAPPING_SERVICE_URI: "http://info-tpsi.univ-brest.fr:12062"
+    restart: unless-stopped
+    depends_on:
+      - authentication-api
+      - poster-api
+    extra_hosts:
+      - "info-tpsi.univ-brest.fr:172.18.4.22"
+
+  # ---------- AUTHENTICATION SERVICE ----------
+  authentication-api:
+    container_name: authentication-api-prod
+    image: gitlab-depinfo.univ-brest.fr:5050/e22002182/apis/authentication-api:v1.0.0
+    ports:
+      - "12022:8080"
+    environment:
+      spring.datasource.url: jdbc:mariadb://obiwan.univ-brest.fr:3306/e22002182_db2
+      spring.datasource.username: e22002182sql
+      spring.datasource.password: 20ok2UVf
+    restart: unless-stopped
+
+  # ---------- POSTER SERVICE ----------
+  poster-api:
+    container_name: poster-api-prod
+    image: gitlab-depinfo.univ-brest.fr:5050/e22002182/apis/poster-api:v1.0.0
+    ports:
+      - "12024:8080"
+    environment:
+      spring.data.mongodb.uri: mongodb://obiwan.univ-brest.fr:27017/e22002182
+    restart: unless-stopped
+
+  # ---------- FRONTEND ----------
+  vod-client:
+    container_name: vod-client-prod
+    image: gitlab-depinfo.univ-brest.fr:5050/e22002182/apis/vod-client:v1.0.0
+    ports:
+      - "12020:80"
+    depends_on:
+      - gateway
+    restart: unless-stopped
