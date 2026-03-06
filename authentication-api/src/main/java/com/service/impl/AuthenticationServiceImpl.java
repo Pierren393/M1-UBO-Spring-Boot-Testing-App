@@ -1,5 +1,7 @@
 package com.service.impl;
 
+import lombok.extern.slf4j.Slf4j;
+
 import com.repository.UserRepository;
 import com.dto.*;
 import com.entity.User;
@@ -21,6 +23,7 @@ import java.util.Objects;
  */
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class AuthenticationServiceImpl implements AuthenticationService {
 
     private final UserRepository userRepository;
@@ -51,6 +54,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 
     @Override
     public AuthResponseDto login(LoginRequestDto request) {
+        log.info("Tentative de connexion pour l'email: {}", request.getEmail());
         authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(request.getEmail(), request.getPassword()));
 
